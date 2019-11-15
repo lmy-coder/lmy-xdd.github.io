@@ -51,30 +51,31 @@
   };
 </script>
 
-  <meta name="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
-<meta property="og:type" content="website">
-<meta property="og:title" content="lmy">
-<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;page&#x2F;2&#x2F;index.html">
+  <meta name="description" content="反爬虫机制 1.1 表单登陆1.2 cookie 登陆Scrapy模拟登陆 &amp;lt;http:&#x2F;&#x2F;python.jobbole.com&#x2F;88478&#x2F;&amp;gt;1.3 验证码登陆1.3.1 验证码识别2 反爬虫机制的处理2.1 防止服务器长时间不响应——设置时间间隔（timeout）2.2 防止爬虫抓取过快——items类与时间设置2.3 伪装成浏览器或者”反盗链“3 断线重连4 多进程抓取5 对于A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反爬">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2017&#x2F;11&#x2F;05&#x2F;%E5%8F%8D%E8%B6%B4&#x2F;index.html">
 <meta property="og:site_name" content="lmy">
-<meta property="og:description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+<meta property="og:description" content="反爬虫机制 1.1 表单登陆1.2 cookie 登陆Scrapy模拟登陆 &amp;lt;http:&#x2F;&#x2F;python.jobbole.com&#x2F;88478&#x2F;&amp;gt;1.3 验证码登陆1.3.1 验证码识别2 反爬虫机制的处理2.1 防止服务器长时间不响应——设置时间间隔（timeout）2.2 防止爬虫抓取过快——items类与时间设置2.3 伪装成浏览器或者”反盗链“3 断线重连4 多进程抓取5 对于A">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-15T12:40:32.815Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://lmy-xdd.github.io/page/2/">
+<link rel="canonical" href="https://lmy-xdd.github.io/2017/11/05/%E5%8F%8D%E8%B6%B4/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false,
+    isHome: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>lmy</title>
+  <title>反爬 | lmy</title>
   
 
 
@@ -174,11 +175,11 @@
             
 
   <div class="posts-expand">
-        
+      
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/10/20/MySQL/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/11/05/%E5%8F%8D%E8%B6%B4/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/lmy.jpg">
@@ -191,8 +192,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/10/20/MySQL/" class="post-title-link" itemprop="url">mysql</a>
+          反爬
         </h1>
 
         <div class="post-meta">
@@ -202,14 +202,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2017-10-20 10:21:05" itemprop="dateCreated datePublished" datetime="2017-10-20T10:21:05+08:00">2017-10-20</time>
+              <time title="创建时间：2017-11-05 15:24:07" itemprop="dateCreated datePublished" datetime="2017-11-05T15:24:07+08:00">2017-11-05</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-15 16:29:57" itemprop="dateModified" datetime="2019-11-15T16:29:57+08:00">2019-11-15</time>
+                <time title="修改时间：2019-11-15 20:40:32" itemprop="dateModified" datetime="2019-11-15T20:40:32+08:00">2019-11-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -217,8 +217,8 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
-                    <span itemprop="name">基础</span>
+                  <a href="/categories/%E7%88%AC%E8%99%AB/" itemprop="url" rel="index">
+                    <span itemprop="name">爬虫</span>
                   </a>
                 </span>
             </span>
@@ -234,103 +234,58 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>甲骨文是一个非常庞大的数据库也是一个公司Mysql简介官网地址  <a href="http://www.mysql.com/" target="_blank" rel="noopener">http://www.mysql.com/</a>MySQL是一个关系型数据库管理系统，关系型数据库是表组成的（还有一种是非关系型），用以用sql语句方便的在一个表以及多个表之间做非常复杂的数据查询。非关系型数据库是以键值的方式存储的。由瑞典MySQL AB公司开发，后来被Sun公司收购，Sun公司后来又被Oracle公司收购，目前属于Oracle旗下产品 特点 使用C和C++编写，并使用了多种编译器进行测试，保证源代码的可移植性 支持多种操作系统，如Linux、Windows、AIX、FreeBSD、HP-UX、MacOS、NovellNetware、OpenBSD、OS/2 Wrap、Solaris等 为多种编程语言提供了API，如C、C++、Python、Java、Perl、PHP、Eiffel、Ruby等 mysql提供了优化的SQL查询算法，有效地提高查询速度 mysql是大型的数据库。可以处理拥有上千万条记录的大型数据库并且支持多种存储引擎 MySQL 软件采用了双授权政策，它分为社区版和商业版，由于其体积小、速度快、总体拥有成本低，尤其是开放源码这一特点，一般中小型网站的开发都选择MySQL作为网站数据库 MySQL使用标准的SQL数据语言形式 Mysql是可以定制的，采用了GPL协议，你可以修改源码来开发自己的Mysql系统 mysql特点是开源 免费 使用范围广,跨平台,提供了多种语言调用的 API，是学习互联网公司数据库的首选，目前市场上很多公司用的都是mysql 服务端安装 1.下载Mysql,5.7版本，将zip包解压到某个安装目录下面，最好不要放C盘，选择一个容量大的磁盘。下载地址：<a href="https://www.mysql.com/downloads/mysql/2" target="_blank" rel="noopener">https://www.mysql.com/downloads/mysql/2</a>.初始化mysql的时候系统会自动创建一个data目录，我们只需创建一个my.ini文件即可。 新建记事本，将下面代码复制到记事本中，将文件命名为my.ini： [Client] port = 3306 [mysqld] #设置3306端口 port = 3306 # 设置mysql的安装目录 basedir=E:\install_work\mysql # 设置mysql数据库的数据存放目录 datadir=E:\install_work\mysql\data # 允许最大连接数 max_connections=200 # 服务端使用的字符集默认为8比特编码的latin1字符集 character-set-server=utf8 # 创建新表时将使用的默认存储引擎 default-storage-engine=INNODB [mysql] # 设置mysql客户端默认字符集 default-character-set=utf8 </p>
-      
+        <p>反爬虫机制 1.1 表单登陆</p><p>1.2 cookie 登陆Scrapy模拟登陆 &lt;<a href="http://python.jobbole.com/88478/" target="_blank" rel="noopener">http://python.jobbole.com/88478/</a>&gt;</p><p>1.3 验证码登陆1.3.1 验证码识别2 反爬虫机制的处理2.1 防止服务器长时间不响应——设置时间间隔（timeout）2.2 防止爬虫抓取过快——items类与时间设置2.3 伪装成浏览器或者”反盗链“3 断线重连4 多进程抓取5 对于Ajax请求的处理6 自动化测试工具 Selenium·      [x] Selenium 爬虫实例·      代理登陆爬?去哪儿? &lt;<a href="https://github.com/lining0806/PythonSpiderNotes/blob/master/QunarSpider" target="_blank" rel="noopener">https://github.com/lining0806/PythonSpiderNotes/blob/master/QunarSpider</a>&gt;  </p><a id="more"></a>
+
+
+<p>Headers(请求头的意思)     Response   Headers （响应头部）    Request Headers（发送服务器的请求头的有那些数据） User-Agent（浏览器信息） content-type（内容类型） status（状态码，状态吗是从响应里获取） Request Method（请求的方式）   7 响应状态码(status code) 常见的状态码： 200：成功 302：临时转移至新的url 307：临时转移至新的url 404：找不到该页面 500：服务器内部错误 503：服务不可用 所有的状态码都不可信，一切以是否获取到数据为准   str，bytes以及互相转换:str 使用encode方法转化为 bytes bytes 通过decode转化为 str 字符集编码类型（ASCII,unicode,UTF-8）: 字符(Character)是各种文字和符号的总称，包括各国家文字、标点符号、图形符号、数字等 字符集(Character set)有字符构成，是多个字符的集合，如：ASCII字符集、GB2312字符集、GB18030字符集、Unicode字符集等 为什么请求需要带上header？ 模拟浏览器，欺骗服务器，获取和浏览器一致的内容 response.text 响应体 str类型respones.content 响应体 bytes类型 response.status_code 响应状态码 response.request.headers 响应对应的请求头 response.headers 响应头 response.request.cookies 响应对应请求的cookie response.cookies 响应的cookie（经过了set-cookie动作） 思考：text是response的属性还是方法呢？ 一般来说名词，往往都是对象的属性，对应的动词是对象的方法 3.1 response.text 和response.content的区别 response.text 类型：str 解码类型： requests模块自动根据HTTP 头部对响应的编码作出有根据的推测，推测的文本编码 如何修改编码方式：response.encoding=”gbk” response.content 类型：bytes 解码类型： 没有指定 如何修改编码方式：response.content.deocde(“utf8”) 获取网页源码的通用方式： response.content.decode() response.content.decode(“GBK”) response.text 以上三种方法从前往后尝试，能够100%的解决所有网页解码的问题 所以：更推荐使用response.content.deocde()的方式获取响应的html页面 </p>
+
     </div>
 
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2017/11/05/%E5%8F%8D%E8%B6%B4/" title="反爬">https://lmy-xdd.github.io/2017/11/05/%E5%8F%8D%E8%B6%B4/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
         
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/lmy.jpg">
-      <meta itemprop="name" content="Liu Mingyi">
-      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
-    </span>
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2017/11/03/%E5%9B%9B%E5%A4%A7%E9%AB%98%E7%BA%A7%E5%87%BD%E6%95%B0/" rel="next" title="四大高级函数">
+                  <i class="fa fa-chevron-left"></i> 四大高级函数
+                </a>
+            </div>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="lmy">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/" class="post-title-link" itemprop="url">深浅拷贝</a>
-        </h1>
+            <span class="post-nav-divider"></span>
 
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2017-10-13 15:41:01" itemprop="dateCreated datePublished" datetime="2017-10-13T15:41:01+08:00">2017-10-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-11-15 16:14:15" itemprop="dateModified" datetime="2019-11-15T16:14:15+08:00">2019-11-15</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
-                    <span itemprop="name">基础</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>#无论深拷贝还是浅拷贝外部(的ID地址都会不一样）都会生成一个新的对象，# 但是深拷贝和浅拷贝的区别在于#浅拷贝内部无论可变类型与不可变类型都是引用关系（ID地址是一样的）# 但是深拷贝内部可变类型会生成一个新的对象（ID地址）但是不可变类型还是引用关系。 </p>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
       </footer>
+    
   </article>
   
   
   
 
   </div>
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
-  </nav>
-
 
 
           </div>
