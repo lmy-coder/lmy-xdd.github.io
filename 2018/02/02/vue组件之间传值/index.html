@@ -51,16 +51,17 @@
   };
 </script>
 
-  <meta name="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
-<meta property="og:type" content="website">
-<meta property="og:title" content="lmy">
-<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;archives&#x2F;2017&#x2F;index.html">
+  <meta name="description" content="12345678910111213141516171819202122232425262728293031323334&#x2F;&#x2F;父组件通过标签上面定义传值&amp;lt;template&amp;gt;    &amp;lt;Main :obj=&amp;quot;data&amp;quot;&amp;gt;&amp;lt;&#x2F;Main&amp;gt;&amp;lt;&#x2F;template&amp;gt;&amp;lt;script&amp;gt;    &#x2F;&#x2F;引入子组件    import Main f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="组件传值">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;02&#x2F;02&#x2F;vue%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%97%B4%E4%BC%A0%E5%80%BC&#x2F;index.html">
 <meta property="og:site_name" content="lmy">
-<meta property="og:description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+<meta property="og:description" content="12345678910111213141516171819202122232425262728293031323334&#x2F;&#x2F;父组件通过标签上面定义传值&amp;lt;template&amp;gt;    &amp;lt;Main :obj=&amp;quot;data&amp;quot;&amp;gt;&amp;lt;&#x2F;Main&amp;gt;&amp;lt;&#x2F;template&amp;gt;&amp;lt;script&amp;gt;    &#x2F;&#x2F;引入子组件    import Main f">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-20T12:29:02.259Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://lmy-xdd.github.io/archives/2017/">
+<link rel="canonical" href="https://lmy-xdd.github.io/2018/02/02/vue%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%97%B4%E4%BC%A0%E5%80%BC/">
 
 
 <script id="page-configurations">
@@ -68,13 +69,13 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false,
+    isPost: true,
     isPage: false,
-    isArchive: true
+    isArchive: false
   };
 </script>
 
-  <title>归档 | lmy</title>
+  <title>组件传值 | lmy</title>
   
 
 
@@ -173,232 +174,107 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 13 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/02/02/vue%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%97%B4%E4%BC%A0%E5%80%BC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          组件传值
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-02-02 18:47:25" itemprop="dateCreated datePublished" datetime="2018-02-02T18:47:25+08:00">2018-02-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <h1 class="collection-header">2017</h1>
+        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">//父组件通过标签上面定义传值</span><br><span class="line">&lt;template&gt;</span><br><span class="line">    &lt;Main :obj=&quot;data&quot;&gt;&lt;/Main&gt;</span><br><span class="line">&lt;/template&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">    //引入子组件</span><br><span class="line">    import Main form &quot;./main&quot;</span><br><span class="line"></span><br><span class="line">    exprot default&#123;</span><br><span class="line">        name:&quot;parent&quot;,</span><br><span class="line">        data()&#123;</span><br><span class="line">            return &#123;</span><br><span class="line">                data:&quot;我要向子组件传递数据&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        //初始化组件</span><br><span class="line">        components:&#123;</span><br><span class="line">            Main</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//子组件通过props方法接受数据</span><br><span class="line">&lt;template&gt;</span><br><span class="line">    &lt;div&gt;&#123;&#123;data&#125;&#125;&lt;/div&gt;</span><br><span class="line">&lt;/template&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">    exprot default&#123;</span><br><span class="line">        name:&quot;son&quot;,</span><br><span class="line">        //接受父组件传值</span><br><span class="line">        props:[&quot;obj&quot;]</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
+        
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-12-22T22:45:55+08:00"
-              content="2017-12-22">
-          12-22
-        </time>
-      </div>
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2018/02/02/vue%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%97%B4%E4%BC%A0%E5%80%BC/" title="组件传值">https://lmy-xdd.github.io/2018/02/02/vue%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%97%B4%E4%BC%A0%E5%80%BC/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
 
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/12/22/python%E7%89%B9%E6%AE%8A%E6%96%B9%E6%B3%95/" itemprop="url">
-            <span itemprop="name">特殊方法</span>
-          </a>
-      </h2>
 
-    </header>
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/01/12/%E6%9F%A5%E6%89%BE/" rel="next" title="查找">
+                  <i class="fa fa-chevron-left"></i> 查找
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
   </article>
+  
+  
+  
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-12-16T20:15:55+08:00"
-              content="2017-12-16">
-          12-16
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/12/16/mongodb%E4%B8%8EMySQL%E7%9A%84%E6%80%A7%E8%83%BD%E7%9B%B8%E6%AF%94/" itemprop="url">
-            <span itemprop="name">mongodb与MySQL性能相比</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-12-08T21:07:18+08:00"
-              content="2017-12-08">
-          12-08
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/12/08/mongodb/" itemprop="url">
-            <span itemprop="name">mongodb</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-11-23T19:24:07+08:00"
-              content="2017-11-23">
-          11-23
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/11/23/%E7%88%AC%E8%99%AB%E7%9B%B8%E5%85%B3/" itemprop="url">
-            <span itemprop="name">爬虫总结</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-11-05T15:24:07+08:00"
-              content="2017-11-05">
-          11-05
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/11/05/%E5%8F%8D%E8%B6%B4/" itemprop="url">
-            <span itemprop="name">反爬</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-11-03T16:34:00+08:00"
-              content="2017-11-03">
-          11-03
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/11/03/%E5%9B%9B%E5%A4%A7%E9%AB%98%E7%BA%A7%E5%87%BD%E6%95%B0/" itemprop="url">
-            <span itemprop="name">四大高级函数</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-10-30T15:24:07+08:00"
-              content="2017-10-30">
-          10-30
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/10/30/scrapy/" itemprop="url">
-            <span itemprop="name">scrapy</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-10-23T14:41:05+08:00"
-              content="2017-10-23">
-          10-23
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/10/23/vue%E8%B7%A8%E5%9F%9F/" itemprop="url">
-            <span itemprop="name">vue跨域</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-10-23T14:41:05+08:00"
-              content="2017-10-23">
-          10-23
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/10/23/Linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/" itemprop="url">
-            <span itemprop="name">linux常用命令</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2017-10-20T10:21:05+08:00"
-              content="2017-10-20">
-          10-20
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2017/10/20/MySQL/" itemprop="url">
-            <span itemprop="name">mysql</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-
-    </div>
   </div>
-  
-  
-  
-
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/archives/2017/page/2/">2</a><a class="extend next" rel="next" href="/archives/2017/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
-
 
 
           </div>
