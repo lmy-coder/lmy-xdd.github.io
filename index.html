@@ -178,6 +178,74 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/12/08/mongodb/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2017/12/08/mongodb/" class="post-title-link" itemprop="url">mongodb</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-12-08 21:07:18" itemprop="dateCreated datePublished" datetime="2017-12-08T21:07:18+08:00">2017-12-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="什么是-MongoDB-？"><a href="#什么是-MongoDB-？" class="headerlink" title="什么是 MongoDB ？"></a>什么是 MongoDB ？</h2><p>MongoDB 是一个介于关系数据库和非关系数据库之间的开源产品，是最接近于关系型数据库的 NoSQL 数据库。它在轻量级JSON 交换基础之上进行了扩展，即称为 BSON 的方式来描述其无结构化的数据类型。尽管如此它同样可以存储较为复杂的数据类型。它和上一篇文章讲到的Redis有异曲同工之妙。虽然两者均为 NoSQL ，但是 MongoDB 相对于 Redis 而言，MongoDB 更像是传统的数据库。早些年我们是先有了 Relation Database (关系型数据库)，然后出现了很多很复杂的query ，里面用到了很多嵌套，很多 join 操作。所以在设计数据库的时候，我们也考虑到了如何应用他们的关系，使得写 query 可以使 database 效率达到最高。后来人们发现，不是每个系统，都需要如此复杂的关系型数据库。有些简单的网站，比如博客，比如社交网站，完全可以斩断数据库之间的一切关系。这样做带来的好处是，设计数据库变得更加简单，写 query 也变得更加简单。然后，query 消耗的时间可能也会变少。因为 query 简单了，少了许多消耗资源的 join 操作，速度自然会上去。正如所说的， query 简单了，很有以前 MySQL 可以找到的东西，现在关系没了，通过 Mongo 找不到了。我们只能将几组数据都抓到本地，然后在本地做 join ，所以在这点上可能会消耗很多资源。这里我们可以发现。如何选择数据库，完全取决于你所需要处理的数据的模型，即 Data Model 。如果它们之间，关系错综复杂，千丝万缕，这个时候 MySQL 一定是首选。如果他们的关系并不是那么密切，那么， NoSQL 将会是利器。 </p>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/11/23/%E7%88%AC%E8%99%AB%E7%9B%B8%E5%85%B3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -470,74 +538,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/10/23/vue%E8%B7%A8%E5%9F%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/lmy.jpg">
-      <meta itemprop="name" content="Liu Mingyi">
-      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="lmy">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2017/10/23/vue%E8%B7%A8%E5%9F%9F/" class="post-title-link" itemprop="url">vue跨域</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2017-10-23 14:41:05" itemprop="dateCreated datePublished" datetime="2017-10-23T14:41:05+08:00">2017-10-23</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">前端</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>vue init webpack 项目名 npm run dev npm install –save axios  下载 1.add_news/  连接django接口vue：main.js 中导入import axios from ‘axios’Vue.prototype.axios = axios或 导入axios.js文件import axios from ‘../static/js/axios’ 在config下的index.js中找到proxyTable:{}中    加入以下代码      ‘/api’: { //使用”/api”来代替”<a href="http://f.apiplus.c/" target="_blank" rel="noopener">http://f.apiplus.c</a>“        target: ‘<a href="http://127.0.0.1:8000/" target="_blank" rel="noopener">http://127.0.0.1:8000/</a>‘, //源地址        changeOrigin: true, //改变源        pathRewrite: {        ‘^/api’: ‘’ //路径重写        }      } </p>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -588,14 +588,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
   </nav>
