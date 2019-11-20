@@ -51,17 +51,17 @@
   };
 </script>
 
-  <meta name="description" content="#无论深拷贝还是浅拷贝外部(的ID地址都会不一样）都会生成一个新的对象，# 但是深拷贝和浅拷贝的区别在于#浅拷贝内部无论可变类型与不可变类型都是引用关系（ID地址是一样的）# 但是深拷贝内部可变类型会生成一个新的对象（ID地址）但是不可变类型还是引用关系。">
+  <meta name="description" content="python特殊方法(magic方法也叫魔术方法)构造和初始化12345678910111213141516171819每个人都知道一个最基本的魔术方法， __init__ 。通过此方法我们可以定义一个对象的初始操作。然而，当我调用 x = SomeClass() 的时候， __init__ 并不是第一个被调用的方法。实际上，还有一个叫做 __new__ 的方法，来构造这个实例。然后给在开始创建时">
 <meta property="og:type" content="article">
-<meta property="og:title" content="深浅拷贝">
-<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2017&#x2F;10&#x2F;13&#x2F;%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D&#x2F;index.html">
+<meta property="og:title" content="特殊方法">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2017&#x2F;12&#x2F;22&#x2F;python%E7%89%B9%E6%AE%8A%E6%96%B9%E6%B3%95&#x2F;index.html">
 <meta property="og:site_name" content="lmy">
-<meta property="og:description" content="#无论深拷贝还是浅拷贝外部(的ID地址都会不一样）都会生成一个新的对象，# 但是深拷贝和浅拷贝的区别在于#浅拷贝内部无论可变类型与不可变类型都是引用关系（ID地址是一样的）# 但是深拷贝内部可变类型会生成一个新的对象（ID地址）但是不可变类型还是引用关系。">
+<meta property="og:description" content="python特殊方法(magic方法也叫魔术方法)构造和初始化12345678910111213141516171819每个人都知道一个最基本的魔术方法， __init__ 。通过此方法我们可以定义一个对象的初始操作。然而，当我调用 x = SomeClass() 的时候， __init__ 并不是第一个被调用的方法。实际上，还有一个叫做 __new__ 的方法，来构造这个实例。然后给在开始创建时">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-15T08:14:15.372Z">
+<meta property="og:updated_time" content="2019-11-20T11:21:46.484Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/">
+<link rel="canonical" href="https://lmy-xdd.github.io/2017/12/22/python%E7%89%B9%E6%AE%8A%E6%96%B9%E6%B3%95/">
 
 
 <script id="page-configurations">
@@ -75,7 +75,7 @@
   };
 </script>
 
-  <title>深浅拷贝 | lmy</title>
+  <title>特殊方法 | lmy</title>
   
 
 
@@ -179,7 +179,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/12/22/python%E7%89%B9%E6%AE%8A%E6%96%B9%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/lmy.jpg">
@@ -192,7 +192,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          深浅拷贝
+          特殊方法
         </h1>
 
         <div class="post-meta">
@@ -202,7 +202,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2017-10-13 15:41:01" itemprop="dateCreated datePublished" datetime="2017-10-13T15:41:01+08:00">2017-10-13</time>
+              <time title="创建时间：2017-12-22 22:45:55" itemprop="dateCreated datePublished" datetime="2017-12-22T22:45:55+08:00">2017-12-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -227,7 +227,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>#无论深拷贝还是浅拷贝外部(的ID地址都会不一样）都会生成一个新的对象，# 但是深拷贝和浅拷贝的区别在于#浅拷贝内部无论可变类型与不可变类型都是引用关系（ID地址是一样的）# 但是深拷贝内部可变类型会生成一个新的对象（ID地址）但是不可变类型还是引用关系。 </p>
+        <h1 id="python特殊方法-magic方法也叫魔术方法"><a href="#python特殊方法-magic方法也叫魔术方法" class="headerlink" title="python特殊方法(magic方法也叫魔术方法)"></a>python特殊方法(magic方法也叫魔术方法)</h1><p>构造和初始化</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">每个人都知道一个最基本的魔术方法， __init__ 。</span><br><span class="line"></span><br><span class="line">通过此方法我们可以定义一个对象的初始操作。</span><br><span class="line"></span><br><span class="line">然而，当我调用 x = SomeClass() 的时候， __init__ 并不是第一个被调用的方法。</span><br><span class="line"></span><br><span class="line">实际上，还有一个叫做 __new__ 的方法，来构造这个实例。</span><br><span class="line"></span><br><span class="line">然后给在开始创建时候的初始化函数来传递参数。</span><br><span class="line"></span><br><span class="line">在对象生命周期的另一端，也有一个 __del__ 方法。我们现在来近距离的看一看这三个方法:</span><br><span class="line"></span><br><span class="line">__new__(cls, [...) __new__ 是在一个对象实例化的时候所调用的第一个方法。它的第一个参数是这个类，其他的参数是用来直接传递给 __init__ 方法。 __new__ 方法相当不常用,但是它有自己的特性，特别是当继承一个不可变的类型比如一个tuple或者string。我不希望在 __new__ 上有太多细节，因为并不是很有用处，但是在 Python文档 中有详细的阐述。</span><br><span class="line"></span><br><span class="line">__init__(self, […) 此方法为类的初始化方法。当构造函数被调用的时候的任何参数都将会传给它。(比如如果我们调用 x = SomeClass(10, &apos;foo&apos;))，那么 __init__ 将会得到两个参数10和foo。 __init__ 在Python的类定义中被广泛用到。</span><br><span class="line"></span><br><span class="line">__del__(self) 如果 __new__ 和 __init__ 是对象的构造器的话，那么 __del__ 就是析构器。它不实现语句 del x (以上代码将不会翻译为 x.__del__() )。它定义的是当一个对象进行垃圾回收时候的行为。当一个对象在删除的时需要更多的清洁工作的时候此方法会很有用，比如套接字对象或者是文件对象。注意，如果解释器退出的时候对象还存存在，就不能保证 __del__ 能够被执行，所以 __del__ can’t serve as a replacement for good coding practices ()~~~~~~~</span><br><span class="line"></span><br><span class="line">放在一起的话，这里是一个 __init__ 和 __del__</span><br></pre></td></tr></table></figure><a id="more"></a>
+
+
+<p>实际使用的例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">from os.path import join</span><br><span class="line"></span><br><span class="line">class FileObject:</span><br><span class="line">    &apos;&apos;&apos;给文件对象进行包装从而确认在删除时文件流关闭&apos;&apos;&apos;</span><br><span class="line"></span><br><span class="line">    def __init__(self, filepath=&apos;~&apos;, filename=&apos;sample.txt&apos;):</span><br><span class="line">        #读写模式打开一个文件</span><br><span class="line">        self.file = open(join(filepath, filename), &apos;r+&apos;)</span><br><span class="line"></span><br><span class="line">    def __del__(self):</span><br><span class="line">        self.file.close()</span><br><span class="line">        del self.file</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -242,7 +246,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/" title="深浅拷贝">https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/</a>
+    <a href="https://lmy-xdd.github.io/2017/12/22/python%E7%89%B9%E6%AE%8A%E6%96%B9%E6%B3%95/" title="特殊方法">https://lmy-xdd.github.io/2017/12/22/python%E7%89%B9%E6%AE%8A%E6%96%B9%E6%B3%95/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -257,14 +261,14 @@
 
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
+                <a href="/2017/12/16/mongodb%E4%B8%8EMySQL%E7%9A%84%E6%80%A7%E8%83%BD%E7%9B%B8%E6%AF%94/" rel="next" title="mongodb与MySQL性能相比">
+                  <i class="fa fa-chevron-left"></i> mongodb与MySQL性能相比
+                </a>
             </div>
 
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-                <a href="/2017/10/20/MySQL/" rel="prev" title="mysql">
-                  mysql <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
       </footer>
@@ -303,6 +307,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#python特殊方法-magic方法也叫魔术方法"><span class="nav-number">1.</span> <span class="nav-text">python特殊方法(magic方法也叫魔术方法)</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
