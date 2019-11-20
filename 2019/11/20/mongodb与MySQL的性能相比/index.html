@@ -51,17 +51,17 @@
   };
 </script>
 
-  <meta name="description" content="#无论深拷贝还是浅拷贝外部(的ID地址都会不一样）都会生成一个新的对象，# 但是深拷贝和浅拷贝的区别在于#浅拷贝内部无论可变类型与不可变类型都是引用关系（ID地址是一样的）# 但是深拷贝内部可变类型会生成一个新的对象（ID地址）但是不可变类型还是引用关系。">
+  <meta name="description" content="MongoDB 与 MySQL 性能比较像 MySQL 一样， MongoDB 提供了丰富的远远超出了简单的键值存储中提供的功能和功能。 MongoDB 具有查询语言，功能强大的辅助索引(包括文本搜索和地理空间)，数据分析功能强大的聚合框架等。相比使用关系数据库而言，使用MongoDB ，您还可以使用如下表所示的这些功能，跨越更多样化的数据类型和数据规模。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="深浅拷贝">
-<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2017&#x2F;10&#x2F;13&#x2F;%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D&#x2F;index.html">
+<meta property="og:title" content="mongodb">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2019&#x2F;11&#x2F;20&#x2F;mongodb%E4%B8%8EMySQL%E7%9A%84%E6%80%A7%E8%83%BD%E7%9B%B8%E6%AF%94&#x2F;index.html">
 <meta property="og:site_name" content="lmy">
-<meta property="og:description" content="#无论深拷贝还是浅拷贝外部(的ID地址都会不一样）都会生成一个新的对象，# 但是深拷贝和浅拷贝的区别在于#浅拷贝内部无论可变类型与不可变类型都是引用关系（ID地址是一样的）# 但是深拷贝内部可变类型会生成一个新的对象（ID地址）但是不可变类型还是引用关系。">
+<meta property="og:description" content="MongoDB 与 MySQL 性能比较像 MySQL 一样， MongoDB 提供了丰富的远远超出了简单的键值存储中提供的功能和功能。 MongoDB 具有查询语言，功能强大的辅助索引(包括文本搜索和地理空间)，数据分析功能强大的聚合框架等。相比使用关系数据库而言，使用MongoDB ，您还可以使用如下表所示的这些功能，跨越更多样化的数据类型和数据规模。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-11-15T08:14:15.372Z">
+<meta property="og:updated_time" content="2019-11-20T10:59:03.733Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/">
+<link rel="canonical" href="https://lmy-xdd.github.io/2019/11/20/mongodb%E4%B8%8EMySQL%E7%9A%84%E6%80%A7%E8%83%BD%E7%9B%B8%E6%AF%94/">
 
 
 <script id="page-configurations">
@@ -75,7 +75,7 @@
   };
 </script>
 
-  <title>深浅拷贝 | lmy</title>
+  <title>mongodb | lmy</title>
   
 
 
@@ -179,7 +179,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2019/11/20/mongodb%E4%B8%8EMySQL%E7%9A%84%E6%80%A7%E8%83%BD%E7%9B%B8%E6%AF%94/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/lmy.jpg">
@@ -192,7 +192,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          深浅拷贝
+          mongodb
         </h1>
 
         <div class="post-meta">
@@ -202,7 +202,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2017-10-13 15:41:01" itemprop="dateCreated datePublished" datetime="2017-10-13T15:41:01+08:00">2017-10-13</time>
+              <time title="创建时间：2019-11-20 18:55:34" itemprop="dateCreated datePublished" datetime="2019-11-20T18:55:34+08:00">2019-11-20</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -210,8 +210,8 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
-                    <span itemprop="name">基础</span>
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
                   </a>
                 </span>
             </span>
@@ -227,7 +227,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>#无论深拷贝还是浅拷贝外部(的ID地址都会不一样）都会生成一个新的对象，# 但是深拷贝和浅拷贝的区别在于#浅拷贝内部无论可变类型与不可变类型都是引用关系（ID地址是一样的）# 但是深拷贝内部可变类型会生成一个新的对象（ID地址）但是不可变类型还是引用关系。 </p>
+        <h2 id="MongoDB-与-MySQL-性能比较"><a href="#MongoDB-与-MySQL-性能比较" class="headerlink" title="MongoDB 与 MySQL 性能比较"></a>MongoDB 与 MySQL 性能比较</h2><p>像 MySQL 一样， MongoDB 提供了丰富的远远超出了简单的键值存储中提供的功能和功能。 MongoDB 具有查询语言，功能强大的辅助索引(包括文本搜索和地理空间)，数据分析功能强大的聚合框架等。相比使用关系数据库而言，使用MongoDB ，您还可以使用如下表所示的这些功能，跨越更多样化的数据类型和数据规模。</p><a id="more"></a>
+<p>MySQLMongoDB丰富的数据模型否是动态 Schema否是数据类型是是数据本地化否是字段更新是是易于编程否是复杂事务是否审计是是自动分片否是</p>
+<p>MySQL 中的许多概念在 MongoDB 中具有相近的类比。本表概述了每个系统中的一些常见概念。</p>
+<p>MySQLMongoDB表集合行文档列字段joins嵌入文档或者链接</p>
+<h2 id="MongoDB应用范围和限制"><a href="#MongoDB应用范围和限制" class="headerlink" title="MongoDB应用范围和限制"></a>MongoDB应用范围和限制</h2><p>MongoDB 的主要目标是在 key-value (键/值)存储方式(提供了高性能和高度伸缩性)以及传统的 RDBMS 系统(丰富的功能)架起一座桥梁，集两者的优势于一身。 MongoDB 适用范围如下：</p>
+<p>网站数据： Mongo 非常适合实时的插入，更新与查询，并具备网站实时数据存储所需的复制及高度伸缩性。 缓存：由于性能很高， Mongo 也适合作为信息基础设施的缓存层。在系统重启之后，由 Mongo 搭建的持久化缓存层可以避免下层的数据源过载。 大尺寸，低价值的数据：使用传统的关系型数据库存储一些数据时可能会比较昂贵，在此之前，很多时候程序员往往会选择传统的文件进行存储。 高伸缩性的场景： Mongo 非常适合由数十或数百台服务器组成的数据库。 Mongo 的路线图中已经包含对 MapReduce 引擎的内置支持。 用于对象及 JSON 数据的存储： Mongo 的 BSON 数据格式非常适合文档化格式的存储及查询。 MongoDB 当然也会有以下场景的限制：</p>
+<p>高度事物性的系统：例如银行或会计系统。传统的关系型数据库目前还是更适用于需要大量原子性复杂事务的应用程序。 传统的商业智能应用：针对特定问题的 BI 数据库会对产生高度优化的查询方式。对于此类应用，数据仓库可能是更合适的选择。 需要 SQL 的问题。</p>
+
     </div>
 
     
@@ -242,7 +249,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/" title="深浅拷贝">https://lmy-xdd.github.io/2017/10/13/%E6%B7%B1%E6%B5%85%E6%8B%B7%E8%B4%9D/</a>
+    <a href="https://lmy-xdd.github.io/2019/11/20/mongodb%E4%B8%8EMySQL%E7%9A%84%E6%80%A7%E8%83%BD%E7%9B%B8%E6%AF%94/" title="mongodb">https://lmy-xdd.github.io/2019/11/20/mongodb%E4%B8%8EMySQL%E7%9A%84%E6%80%A7%E8%83%BD%E7%9B%B8%E6%AF%94/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -257,14 +264,14 @@
 
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
+                <a href="/2017/12/08/mongodb/" rel="next" title="mongodb">
+                  <i class="fa fa-chevron-left"></i> mongodb
+                </a>
             </div>
 
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-                <a href="/2017/10/20/MySQL/" rel="prev" title="mysql">
-                  mysql <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
       </footer>
@@ -303,6 +310,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MongoDB-与-MySQL-性能比较"><span class="nav-number">1.</span> <span class="nav-text">MongoDB 与 MySQL 性能比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MongoDB应用范围和限制"><span class="nav-number">2.</span> <span class="nav-text">MongoDB应用范围和限制</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
