@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="一次python内存调优经历对于C语言来说，内存泄露是个很常见的事故，因此写代码的时候要格外注意无用内存的释放，但是对于pythoner来说，一般都不会关心这些，因为python会自己去管理内存。但是最近我遇到一个问题，我在写一个程序，将会占用很大的内存，我先使用了一个集合用来存储数据。比如下面这样123example_set = set()for i in range(10000000):">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python内存调优">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2019&#x2F;02&#x2F;19&#x2F;python%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98%E7%BB%8F%E5%8E%86&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="一次python内存调优经历对于C语言来说，内存泄露是个很常见的事故，因此写代码的时候要格外注意无用内存的释放，但是对于pythoner来说，一般都不会关心这些，因为python会自己去管理内存。但是最近我遇到一个问题，我在写一个程序，将会占用很大的内存，我先使用了一个集合用来存储数据。比如下面这样123example_set = set()for i in range(10000000):">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-02T09:44:19.769Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2019/02/19/python%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98%E7%BB%8F%E5%8E%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Python内存调优 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2019/02/19/python%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98%E7%BB%8F%E5%8E%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python内存调优
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-02-19 20:25:16" itemprop="dateCreated datePublished" datetime="2019-02-19T20:25:16+08:00">2019-02-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">基础</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="一次python内存调优经历"><a href="#一次python内存调优经历" class="headerlink" title="一次python内存调优经历"></a>一次python内存调优经历</h1><p>对于C语言来说，内存泄露是个很常见的事故，因此写代码的时候要格外注意无用内存的释放，但是对于pythoner来说，一般都不会关心这些，因为python会自己去管理内存。</p><p>但是最近我遇到一个问题，我在写一个程序，将会占用很大的内存，我先使用了一个集合用来存储数据。</p><p>比如下面这样</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">example_set = set()</span><br><span class="line">for i in range(10000000):</span><br><span class="line">    example_set.add(i)</span><br></pre></td></tr></table></figure><a id="more"></a>
+
+
+
+
+<p>然后我需要将多个数据组合成新的几个：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">example_list = []</span><br><span class="line">for data in example_set:</span><br><span class="line">    dic = &#123;</span><br><span class="line">        &quot;id&quot;:random.randint(1,10000)</span><br><span class="line">        &quot;data&quot;:data</span><br><span class="line">    &#125;</span><br><span class="line">    example_list.append(dic)</span><br></pre></td></tr></table></figure>
+
+<p>后续的话还需传递：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">example_list_1 = example_list</span><br></pre></td></tr></table></figure>
+
+<p>这样以前的数据比如<code>example_set</code>，<code>example_list</code>都不再需要了，而他们又是全局变量，又占用很大的空间，我是否需要手动释放这些数据，我尝试了使用del来手动释放这些数据，但是出现了问题，于是学习一下python的内存回收。</p>
+<h2 id="1-实例"><a href="#1-实例" class="headerlink" title="1. 实例"></a>1. 实例</h2><p>首先先用实例感受一下python的内存机制.</p>
+<p>我们先定义一个函数用来查看当前进程占用的内存大小：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">import os</span><br><span class="line">import psutil</span><br><span class="line"># 显示当前 python 程序占用的内存大小</span><br><span class="line">def show_memory_info(hint):</span><br><span class="line">    pid = os.getpid()</span><br><span class="line">    p = psutil.Process(pid)</span><br><span class="line"></span><br><span class="line">    info = p.memory_full_info()</span><br><span class="line">    memory = info.uss / 1024. / 1024</span><br><span class="line">    print(&apos;&#123;&#125; memory used: &#123;&#125; MB&apos;.format(hint, memory))</span><br></pre></td></tr></table></figure>
+
+<p>然后尝试写一个比较大的列表，然后复制一下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">import random</span><br><span class="line">show_memory_info(&apos;step1&apos;)</span><br><span class="line">a = [random.randint(1,10000) for i in range(1000000)]</span><br><span class="line">show_memory_info(&apos;step2&apos;)</span><br><span class="line">b = a</span><br><span class="line">show_memory_info(&apos;step3&apos;)</span><br></pre></td></tr></table></figure>
+
+<p>结果为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">step1 memory used: 9.7578125 MB</span><br><span class="line">step2 memory used: 47.75390625 MB</span><br><span class="line">step3 memory used: 47.78515625 MB</span><br></pre></td></tr></table></figure>
+
+<p>很显然这里的b = a并没有产生更多的内存占用。因为这里的赋值属于对象引用的传递，并不会重新划分内存，而是直接将b指向a指向的内存。</p>
+<p>那么不直接赋值，而是合成呢？可以看下面的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">import random</span><br><span class="line">show_memory_info(&apos;step1&apos;)</span><br><span class="line">a = [random.randint(1,10000) for i in range(1000000)]</span><br><span class="line">show_memory_info(&apos;step2&apos;)</span><br><span class="line">b = []</span><br><span class="line">for i in a:</span><br><span class="line">    b.append(&#123;&apos;num&apos;:i&#125;)</span><br><span class="line">show_memory_info(&apos;step3&apos;)</span><br><span class="line">del a</span><br><span class="line">show_memory_info(&apos;step4&apos;)</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">step1 memory used: 9.3046875 MB</span><br><span class="line">step2 memory used: 47.3046875 MB</span><br><span class="line">step3 memory used: 288.8984375 MB</span><br><span class="line">step4 memory used: 281.265625 MB</span><br></pre></td></tr></table></figure>
+
+<p>第一步申请a占用了47MB内存，但是很显然step4释放了a之后，内存只减少了7MB，这说明a和b其实是有交叉引用的，也就是说a和b指向的内存并不是完全分开的。</p>
+<p>这里其实对应了python一切皆对象的说法，a和b只是指针，他们指向内存中的某块区域，用a合成b的时候，并不是重新划分内存来保存b的值，其公共部分还是指向原来的内存。</p>
+<p><strong>得出结论，参数传递和重新合成并不会占用更多内存，除非是深拷贝</strong></p>
+<h2 id="2-python内存回收"><a href="#2-python内存回收" class="headerlink" title="2. python内存回收"></a>2. python内存回收</h2><p>其实从上面的例子中我们已经知道了，一般情况下无需手动释放不需要的变量，那么python是如何释放不必要的内存的呢？</p>
+<p>其中最主要的机制是<strong>引用计数</strong>当一个对象的引用计数为0时，就意味着没有指针会指向这个对象，这个对象自然成了垃圾，需要回收。</p>
+<p>看一个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">import sys</span><br><span class="line"></span><br><span class="line">a = []</span><br><span class="line"></span><br><span class="line"># 两次引用，一次来自 a，一次来自 getrefcount</span><br><span class="line">print(sys.getrefcount(a))</span><br><span class="line"></span><br><span class="line">def func(a):</span><br><span class="line">    # 四次引用，a，python 的函数调用栈，函数参数，和 getrefcount</span><br><span class="line">    print(sys.getrefcount(a))</span><br><span class="line"></span><br><span class="line">func(a)</span><br><span class="line"></span><br><span class="line"># 两次引用，一次来自 a，一次来自 getrefcount，函数 func 调用已经不存在</span><br><span class="line">print(sys.getrefcount(a))</span><br><span class="line"></span><br><span class="line">########## 输出 ##########</span><br><span class="line"></span><br><span class="line">2</span><br><span class="line">4</span><br><span class="line">2</span><br></pre></td></tr></table></figure>
+
+<p>sys.getrefcount() 这个函数，可以查看一个变量的引用次数，其自身也会引入一次计数。</p>
+<p>在函数调用发生的时候，会产生额外的两次引用，一次来自函数栈，另一个是函数参数。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">import sys</span><br><span class="line"></span><br><span class="line">a = []</span><br><span class="line"></span><br><span class="line">print(sys.getrefcount(a)) # 两次</span><br><span class="line"></span><br><span class="line">b = a</span><br><span class="line"></span><br><span class="line">print(sys.getrefcount(a)) # 三次</span><br><span class="line"></span><br><span class="line">c = b</span><br><span class="line">d = b</span><br><span class="line">e = c</span><br><span class="line">f = e</span><br><span class="line">g = d</span><br><span class="line"></span><br><span class="line">print(sys.getrefcount(a)) # 八次</span><br><span class="line"></span><br><span class="line">########## 输出 ##########</span><br><span class="line"></span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">8</span><br></pre></td></tr></table></figure>
+
+<p>a、b、c、d、e、f、g 这些变量全部指代的是同一个对象，所以这个对象的最后会有8次引用。</p>
+<p>理解引用这个概念后，垃圾回收也就很容易理解了。</p>
+<p>如果偏想手动释放内存，可以先调用 del a 来删除一个对象；然后强制调用 gc.collect()，即可手动启动垃圾回收。看下面的例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">import gc</span><br><span class="line"></span><br><span class="line">show_memory_info(&apos;initial&apos;)</span><br><span class="line"></span><br><span class="line">a = [i for i in range(10000000)]</span><br><span class="line"></span><br><span class="line">show_memory_info(&apos;after a created&apos;)</span><br><span class="line"></span><br><span class="line">del a</span><br><span class="line">gc.collect()</span><br><span class="line"></span><br><span class="line">show_memory_info(&apos;finish&apos;)</span><br><span class="line">print(a)</span><br><span class="line"></span><br><span class="line">########## 输出 ##########</span><br><span class="line"></span><br><span class="line">initial memory used: 48.1015625 MB</span><br><span class="line">after a created memory used: 434.3828125 MB</span><br><span class="line">finish memory used: 48.33203125 MB</span><br><span class="line"></span><br><span class="line">---------------------------------------------------------------------------</span><br><span class="line">NameError                                 Traceback (most recent call last)</span><br><span class="line">&lt;ipython-input-12-153e15063d8a&gt; in &lt;module&gt;</span><br><span class="line">     11 </span><br><span class="line">     12 show_memory_info(&apos;finish&apos;)</span><br><span class="line">---&gt; 13 print(a)</span><br><span class="line"></span><br><span class="line">NameError: name &apos;a&apos; is not defined</span><br></pre></td></tr></table></figure>
+
+<p>除了引用计数外，python的垃圾回收还有其他机制：<strong>标记清除+分代收集</strong></p>
+<p>其余两种机制还有待学习，因和需求关系不大，鸽了</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>python一切皆对象，普通的值的传递只是引用的传递。</li>
+<li>垃圾回收是 Python自带的机制，用于自动释放不会再用到的内存空间</li>
+<li>引用计数是其中最简单的实现，这只是充分非必要条件</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2019/02/19/python%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98%E7%BB%8F%E5%8E%86/" title="Python内存调优">https://lmy-xdd.github.io/2019/02/19/python%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98%E7%BB%8F%E5%8E%86/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" rel="next" title="redis未授权漏洞利用">
+                  <i class="fa fa-chevron-left"></i> redis未授权漏洞利用
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一次python内存调优经历"><span class="nav-number">1.</span> <span class="nav-text">一次python内存调优经历</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-实例"><span class="nav-number">1.1.</span> <span class="nav-text">1. 实例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-python内存回收"><span class="nav-number">1.2.</span> <span class="nav-text">2. python内存回收</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>
