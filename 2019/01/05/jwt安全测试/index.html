@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="1. jwt简介相对于传统的session-cookie身份校验机制，Token Auth正在变得流行，也就是说把token信息全部存在于客户端。这篇文章就讲讲Token Auth的一种，jwt机制。jwt(JSON Web Token)是一串json格式的字符串，由服务端用加密算法对信息签名来保证其完整性和不可伪造。Token里可以包含所有必要信息，这样服务端就无需保存任何关于用户或会话的信息，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jwt安全测试">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2019&#x2F;01&#x2F;05&#x2F;jwt%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="1. jwt简介相对于传统的session-cookie身份校验机制，Token Auth正在变得流行，也就是说把token信息全部存在于客户端。这篇文章就讲讲Token Auth的一种，jwt机制。jwt(JSON Web Token)是一串json格式的字符串，由服务端用加密算法对信息签名来保证其完整性和不可伪造。Token里可以包含所有必要信息，这样服务端就无需保存任何关于用户或会话的信息，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;11&#x2F;1040192119.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;11&#x2F;4261358706.png">
+<meta property="og:updated_time" content="2019-12-02T09:22:02.894Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;11&#x2F;1040192119.png">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2019/01/05/jwt%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>jwt安全测试 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2019/01/05/jwt%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          jwt安全测试
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-01-05 22:35:16" itemprop="dateCreated datePublished" datetime="2019-01-05T22:35:16+08:00">2019-01-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">基础</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="1-jwt简介"><a href="#1-jwt简介" class="headerlink" title="1. jwt简介"></a>1. jwt简介</h2><p>相对于传统的session-cookie身份校验机制，Token Auth正在变得流行，也就是说把token信息全部存在于客户端。这篇文章就讲讲Token Auth的一种，jwt机制。</p><p>jwt(JSON Web Token)是一串json格式的字符串，由服务端用加密算法对信息签名来保证其完整性和不可伪造。Token里可以包含所有必要信息，这样服务端就无需保存任何关于用户或会话的信息，JWT可用于身份认证、会话状态维持、信息交换等。</p><a id="more"></a>
+
+<p>一个jwt token由三部分组成，header、payload与signature，以点隔开，形如<code>xxx.yyy.zzz</code>。</p>
+<p>下面就是一个具体token的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>header用来声明token的类型和签名用的算法等，需要经过Base64Url编码。比如以上token的头部经过base64解码后为<code>{&quot;alg&quot;:&quot;HS256&quot;,&quot;typ&quot;:&quot;JWT&quot;}</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># Base64Url编码如下所示</span><br><span class="line">from base64 import *</span><br><span class="line">def base64URLen(s):</span><br><span class="line">    t0=b64encode(s)</span><br><span class="line">    t1=t0.strip(&apos;=&apos;).replace(&apos;+&apos;,&apos;-&apos;).replace(&apos;/&apos;,&apos;_&apos;)</span><br><span class="line">    return t1</span><br><span class="line"></span><br><span class="line">def base64URLde(s):</span><br><span class="line">    t0=s.replace(&apos;-&apos;,&apos;+&apos;).replace(&apos;_&apos;,&apos;/&apos;)</span><br><span class="line">    t1=t0+&apos;=&apos;*(4-len(t0)%4)%4</span><br><span class="line">    return b64decode(t1)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>payload用来表示真正的token信息，也需要经过Base64Url编码。比如以上token的payload经过解码后为<code>{&quot;sub&quot;:&quot;1234567890&quot;,&quot;name&quot;:&quot;John Doe&quot;,&quot;iat&quot;:1516239022}</code></li>
+<li>signature，将前两部分用<code>alg</code>指定的算法加密，再经过Base64Url编码就是signature了。</li>
+</ul>
+<p>所以解码jwt token之后，内容大致如下:</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/11/1040192119.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/11/1040192119.png" alt="img"></a></p>
+<p>一般我们遇到jwt字符串可以到<code>https://jwt.io/</code>这个网站解密。</p>
+<h2 id="2-jwt存在的安全风险"><a href="#2-jwt存在的安全风险" class="headerlink" title="2. jwt存在的安全风险"></a>2. jwt存在的安全风险</h2><h3 id="2-1-敏感信息泄露"><a href="#2-1-敏感信息泄露" class="headerlink" title="2.1 敏感信息泄露"></a>2.1 敏感信息泄露</h3><p>我们能够轻松解码payload和header，因为这两个都只经过Base64Url编码，而有的时候开发者会误将敏感信息存在payload中。</p>
+<h3 id="2-2-未校验签名"><a href="#2-2-未校验签名" class="headerlink" title="2.2 未校验签名"></a>2.2 未校验签名</h3><p>某些服务端并未校验JWT签名，所以，可以尝试修改signature后(或者直接删除signature)看其是否还有效。</p>
+<h3 id="2-3-签名算法可被修改为none-CVE-2015-2951"><a href="#2-3-签名算法可被修改为none-CVE-2015-2951" class="headerlink" title="2.3 签名算法可被修改为none(CVE-2015-2951)"></a>2.3 签名算法可被修改为none(CVE-2015-2951)</h3><p>头部用来声明token的类型和签名用的算法等，比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;alg&quot;: &quot;HS256&quot;,</span><br><span class="line">  &quot;typ&quot;: &quot;JWT&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上header指定了签名算法为<code>HS256</code>，意味着服务端利用此算法将header和payload进行加密，形成signature，同时接收到token时，也会利用此算法对signature进行签名验证。</p>
+<p>但是如果我们修改了签名算法会怎么样？比如将header修改为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;alg&quot;: &quot;none&quot;,</span><br><span class="line">&quot;typ&quot;: &quot;JWT&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么服务端接收到token后会将其认定为无加密算法， 于是对signature的检验也就失效了，那么我们就可以随意修改payload部分伪造token。</p>
+<p><a href="https://jwt.io/#debugger%E5%B0%86alg%E4%B8%BAnone%E8%A7%86%E4%B8%BA%E6%81%B6%E6%84%8F%E8%A1%8C%E4%B8%BA" target="_blank" rel="noopener">https://jwt.io/#debugger将alg为none视为恶意行为</a>，所以，无法通过在线工具生成JWT，可以用python的jwt库来实现:</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/11/4261358706.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/11/4261358706.png" alt="img"></a></p>
+<p>用none算法生成的JWT只有两部分了，根本连签名都不存在。</p>
+<h3 id="2-4-签名密钥可被爆破"><a href="#2-4-签名密钥可被爆破" class="headerlink" title="2.4 签名密钥可被爆破"></a>2.4 签名密钥可被爆破</h3><p>jwt使用算法对header和payload进行加密，如果我们可以爆破出加密密钥，那么也就可以随意修改token了。</p>
+<p>这里有一个python版本的jwt爆破脚本：<a href="https://github.com/Ch1ngg/JWTPyCrack" target="_blank" rel="noopener">https://github.com/Ch1ngg/JWTPyCrack</a></p>
+<p>也可以快速用以下脚本爆破:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">jwt_str = &quot;xxx.ttt.zzz&quot;</span><br><span class="line">path = &quot;D:/keys.txt&quot;</span><br><span class="line">alg = &quot;HS256&quot;</span><br><span class="line"></span><br><span class="line">with open(path,encoding=&apos;utf-8&apos;) as f:</span><br><span class="line">    for line in f:</span><br><span class="line">        key_ = line.strip()</span><br><span class="line">        try:</span><br><span class="line">            jwt.decode(jwt_str,verify=True,key=key_,algorithm=alg)</span><br><span class="line">            print(&apos;found key! --&gt; &apos; +  key_)</span><br><span class="line">            break</span><br><span class="line">        except(jwt.exceptions.ExpiredSignatureError, jwt.exceptions.InvalidAudienceError, jwt.exceptions.InvalidIssuedAtError, jwt.exceptions.InvalidIssuedAtError, jwt.exceptions.ImmatureSignatureError):</span><br><span class="line">            print(&apos;found key! --&gt; &apos; +  key_)</span><br><span class="line">            break</span><br><span class="line">        except(jwt.exceptions.InvalidSignatureError):</span><br><span class="line">            continue</span><br><span class="line">    else:</span><br><span class="line">        print(&quot;key not found!&quot;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-修改非对称密码算法为对称密码算法-CVE-2016-10555"><a href="#2-5-修改非对称密码算法为对称密码算法-CVE-2016-10555" class="headerlink" title="2.5 修改非对称密码算法为对称密码算法(CVE-2016-10555)"></a>2.5 修改非对称密码算法为对称密码算法(CVE-2016-10555)</h3><p>JWT的签名加密算法有两种，对称加密算法和非对称加密算法。</p>
+<p>对称加密算法比如HS256，加解密使用同一个密钥，保存在后端。</p>
+<p>非对称加密算法比如RS256，后端加密使用私钥，前端解密使用公钥，公钥是我们可以获取到的。</p>
+<p><strong>如果我们修改header，将算法从RS256更改为HS256，后端代码会使用RS256的公钥作为HS256算法的密钥。于是我们就可以用RS256的公钥伪造数据</strong></p>
+<p>比如说这道CTF题目：<a href="https://skysec.top/2018/05/19/2018CUMTCTF-Final-Web/#Pastebin/" target="_blank" rel="noopener">https://skysec.top/2018/05/19/2018CUMTCTF-Final-Web/#Pastebin/</a></p>
+<h3 id="2-6-伪造密钥-CVE-2018-0114"><a href="#2-6-伪造密钥-CVE-2018-0114" class="headerlink" title="2.6 伪造密钥(CVE-2018-0114)"></a>2.6 伪造密钥(CVE-2018-0114)</h3><p>jwk是header里的一个参数，用于指出密钥，存在被伪造的风险。比如CVE-2018-0114： <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-0114" target="_blank" rel="noopener">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-0114</a></p>
+<p>攻击者可以通过以下方法来伪造JWT：删除原始签名，向标头添加新的公钥，然后使用与该公钥关联的私钥进行签名。</p>
+<p>比如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;typ&quot;: &quot;JWT&quot;,</span><br><span class="line">  &quot;alg&quot;: &quot;RS256&quot;,</span><br><span class="line">  &quot;jwk&quot;: &#123;</span><br><span class="line">    &quot;kty&quot;: &quot;RSA&quot;,</span><br><span class="line">    &quot;kid&quot;: &quot;TEST&quot;,</span><br><span class="line">    &quot;use&quot;: &quot;sig&quot;,</span><br><span class="line">    &quot;e&quot;: &quot;AQAB&quot;,</span><br><span class="line">    &quot;n&quot;: &quot;oUGnPChFQAN1xdA1_f_FWZdFAis64o5hdVyFm4vVFBzTIEdYmZZ3hJHsWi5b_m_tjsgjhCZZnPOLn-ZVYs7pce__rDsRw9gfKGCVzvGYvPY1hkIENNeBfSaQlBhOhaRxA85rBkg8BX7zfMRQJ0fMG3EAZhYbr3LDtygwSXi66CCk4zfFNQfOQEF-Tgv1kgdTFJW-r3AKSQayER8kF3xfMuI7-VkKz-yyLDZgITyW2VWmjsvdQTvQflapS1_k9IeTjzxuKCMvAl8v_TFj2bnU5bDJBEhqisdb2BRHMgzzEBX43jc-IHZGSHY2KA39Tr42DVv7gS--2tyh8JluonjpdQ&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-JWT-tool"><a href="#3-JWT-tool" class="headerlink" title="3. JWT tool"></a>3. JWT tool</h2><p>此工具可用于测试jwt的安全性，地址是 <a href="https://github.com/ticarpi/jwt_tool" target="_blank" rel="noopener">https://github.com/ticarpi/jwt_tool</a></p>
+<p>示例用法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">λ python jwt_tool.py eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpbiI6InRpY2FycGkifQ.bsSwqj2c2uI9n7-ajmi3ixVGhPUiY7jO9SUn 9dm15Po</span><br><span class="line"></span><br><span class="line">   $$$$$\ $$\      $$\ $$$$$$$$\  $$$$$$$$\                  $$\</span><br><span class="line">   \__$$ |$$ | $\  $$ |\__$$  __| \__$$  __|                 $$ |</span><br><span class="line">      $$ |$$ |$$$\ $$ |   $$ |       $$ | $$$$$$\   $$$$$$\  $$ |</span><br><span class="line">      $$ |$$ $$ $$\$$ |   $$ |       $$ |$$  __$$\ $$  __$$\ $$ |</span><br><span class="line">$$\   $$ |$$$$  _$$$$ |   $$ |       $$ |$$ /  $$ |$$ /  $$ |$$ |</span><br><span class="line">$$ |  $$ |$$$  / \$$$ |   $$ |       $$ |$$ |  $$ |$$ |  $$ |$$ |</span><br><span class="line">\$$$$$$  |$$  /   \$$ |   $$ |       $$ |\$$$$$$  |\$$$$$$  |$$ |</span><br><span class="line"> \______/ \__/     \__|   \__|$$$$$$\__| \______/  \______/ \__|</span><br><span class="line">  Version 1.3                 \______|</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">=====================</span><br><span class="line">Decoded Token Values:</span><br><span class="line">=====================</span><br><span class="line"></span><br><span class="line">Token header values:</span><br><span class="line">[+] typ = JWT</span><br><span class="line">[+] alg = HS256</span><br><span class="line"></span><br><span class="line">Token payload values:</span><br><span class="line">[+] login = ticarpi</span><br><span class="line"></span><br><span class="line">----------------------</span><br><span class="line">JWT common timestamps:</span><br><span class="line">iat = IssuedAt</span><br><span class="line">exp = Expires</span><br><span class="line">nbf = NotBefore</span><br><span class="line">----------------------</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">########################################################</span><br><span class="line">#  Options:                                            #</span><br><span class="line">#                ==== TAMPERING ====                   #</span><br><span class="line">#  1: Tamper with JWT data (multiple signing options)  #</span><br><span class="line">#                                                      #</span><br><span class="line">#             ==== VULNERABILITIES ====                #</span><br><span class="line">#  2: Check for the &quot;none&quot; algorithm vulnerability     #</span><br><span class="line">#  3: Check for HS/RSA key confusion vulnerability     #</span><br><span class="line">#  4: Check for JWKS key injection vulnerability       #</span><br><span class="line">#                                                      #</span><br><span class="line">#            ==== CRACKING/GUESSING ====               #</span><br><span class="line">#  5: Check HS signature against a key (password)      #</span><br><span class="line">#  6: Check HS signature against key file              #</span><br><span class="line">#  7: Crack signature with supplied dictionary file    #</span><br><span class="line">#                                                      #</span><br><span class="line">#            ==== RSA KEY FUNCTIONS ====               #</span><br><span class="line">#  8: Verify RSA signature against a Public Key        #</span><br><span class="line">#                                                      #</span><br><span class="line">#  0: Quit                                             #</span><br><span class="line">########################################################</span><br><span class="line"></span><br><span class="line">Please make a selection (1-6)</span><br><span class="line">&gt; 1</span><br></pre></td></tr></table></figure>
+
+<p>其中的选项分别为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1. 修改JWT</span><br><span class="line">2. 生成None算法的JWT</span><br><span class="line">3. 检查RS/HS256公钥错误匹配漏洞</span><br><span class="line">4. 检测JKU密钥是否可伪造</span><br><span class="line">5. 输入一个key,检查是否正确</span><br><span class="line">6. 输入一个存放key的文本，检查是否正确</span><br><span class="line">7. 输入字典文本，爆破</span><br><span class="line">8. 输入RSA公钥，检查是否正确</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-安全建议"><a href="#4-安全建议" class="headerlink" title="4. 安全建议"></a>4. 安全建议</h2><p>一般保证前两点基本就没什么漏洞了。</p>
+<ul>
+<li>保证密钥的保密性</li>
+<li>签名算法固定在后端，不以JWT里的算法为标准</li>
+<li>避免敏感信息保存在JWT中</li>
+<li>尽量JWT的有效时间足够短</li>
+</ul>
+<h2 id="5-参考文章"><a href="#5-参考文章" class="headerlink" title="5.参考文章"></a>5.参考文章</h2><ul>
+<li><a href="https://www.freebuf.com/vuls/211842.html" target="_blank" rel="noopener">全程带阻：记一次授权网络攻防演练</a></li>
+<li><a href="https://xz.aliyun.com/t/6776" target="_blank" rel="noopener">攻击JWT的一些方法</a></li>
+<li><a href="https://www.freebuf.com/vuls/219056.html" target="_blank" rel="noopener">JWT介绍及其安全性分析</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2019/01/05/jwt%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/" title="jwt安全测试">https://lmy-xdd.github.io/2019/01/05/jwt%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/12/25/%E4%BB%8E%E5%88%97%E8%A1%A8%E5%AD%97%E5%85%B8%E9%9B%86%E5%90%88%E4%B8%AD%E7%AD%9B%E9%80%89%E6%95%B0%E6%8D%AE/" rel="next" title="从列表字典集合中筛选数据">
+                  <i class="fa fa-chevron-left"></i> 从列表字典集合中筛选数据
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-jwt简介"><span class="nav-number">1.</span> <span class="nav-text">1. jwt简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-jwt存在的安全风险"><span class="nav-number">2.</span> <span class="nav-text">2. jwt存在的安全风险</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-敏感信息泄露"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 敏感信息泄露</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-未校验签名"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 未校验签名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-签名算法可被修改为none-CVE-2015-2951"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 签名算法可被修改为none(CVE-2015-2951)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-签名密钥可被爆破"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 签名密钥可被爆破</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-修改非对称密码算法为对称密码算法-CVE-2016-10555"><span class="nav-number">2.5.</span> <span class="nav-text">2.5 修改非对称密码算法为对称密码算法(CVE-2016-10555)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-伪造密钥-CVE-2018-0114"><span class="nav-number">2.6.</span> <span class="nav-text">2.6 伪造密钥(CVE-2018-0114)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-JWT-tool"><span class="nav-number">3.</span> <span class="nav-text">3. JWT tool</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-安全建议"><span class="nav-number">4.</span> <span class="nav-text">4. 安全建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-参考文章"><span class="nav-number">5.</span> <span class="nav-text">5.参考文章</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>
