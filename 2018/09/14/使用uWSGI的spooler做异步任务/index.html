@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="最近项目上线，遇到了比较烦的问题，我们无法在线上环境使用 redis。原因貌似是 redis 对集群不太友好，高可用比较难做。所以公司没有现有的可以申请用的 redis 集群（但是有类似的替代品）。在之前解决分布式定时任务的时候，我引入了 celery，但是很可惜，celery 目前支持的几个 Broker 在我们这里都没有。想了很多方案之后，还是决定不再用 celery + redis 的组合了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用uWSGI的spooler做异步任务">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;09&#x2F;14&#x2F;%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="最近项目上线，遇到了比较烦的问题，我们无法在线上环境使用 redis。原因貌似是 redis 对集群不太友好，高可用比较难做。所以公司没有现有的可以申请用的 redis 集群（但是有类似的替代品）。在之前解决分布式定时任务的时候，我引入了 celery，但是很可惜，celery 目前支持的几个 Broker 在我们这里都没有。想了很多方案之后，还是决定不再用 celery + redis 的组合了">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;www.kawabangga.com&#x2F;wp-content&#x2F;uploads&#x2F;2018&#x2F;09&#x2F;spooler.png">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269681627.png">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269708409.png">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269740541.png">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269760294.png">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269782395.png">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269814056.png">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269831224.png">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269925204.png">
+<meta property="og:updated_time" content="2019-12-02T07:12:06.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;www.kawabangga.com&#x2F;wp-content&#x2F;uploads&#x2F;2018&#x2F;09&#x2F;spooler.png">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>使用uWSGI的spooler做异步任务 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          使用uWSGI的spooler做异步任务
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-09-14 20:31:25" itemprop="dateCreated datePublished" datetime="2018-09-14T20:31:25+08:00">2018-09-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近项目上线，遇到了比较烦的问题，我们无法在线上环境使用 redis。原因貌似是 redis 对集群不太友好，高可用比较难做。所以公司没有现有的可以申请用的 redis 集群（但是有类似的替代品）。</p><p>在之前解决<a href="https://www.kawabangga.com/posts/2903" target="_blank" rel="noopener">分布式定时任务的时候</a>，我引入了 celery，但是很可惜，celery 目前支持的几个 Broker 在我们这里都没有。想了很多方案之后，还是决定不再用 celery + redis 的组合了。寻找一个不依赖外部 Broker 的异步队列。</p><a id="more"></a>
+
+<p>其实需求主要是两部分：1 需要支持定时任务功能，并且多个节点不能重复执行，这就需要一个全局的 Lock 之类的东西。 2 能够执行一些异步的任务，比如用户发请求，直接返回 Response，表示请求成功，然后再慢慢处理任务。</p>
+<p>找了一圈之后，发现 uWSGI 自带的 <a href="https://uwsgi-docs.readthedocs.io/en/latest/Spooler.html" target="_blank" rel="noopener">spooler</a> 功能基本可以满足异步任务的需求。定时任务可以使用 <a href="https://github.com/Tivix/django-cron/" target="_blank" rel="noopener">django-cron</a> 。这篇文章分享下 spooler，下一次再分享下 django-cron 这个项目吧。</p>
+<p>spooler 解决的主要是这样一种场景：收到用户请求的时候要执行一个耗时比较长的任务，比如发送邮件，通过网络请求更新数据库的一些数据（我们就是这种），而用户可以不必关心任务执行的结果，只要知道任务成功开始执行了就行了。</p>
+<h2 id="spooler-的原理"><a href="#spooler-的原理" class="headerlink" title="spooler 的原理"></a>spooler 的原理</h2><p>异步任务队列的生产者可以是任何能产生 spool file 的程序，是可以跨语言的。任务用用一个文件夹下面的文件来表示的。指定一个文件夹，一个文件就是一个任务。</p>
+<p>后端应用 app 可以往 spool 中放任务（调用 spooler 的 API 生成一个文件），然后uWSGI 启动的时候会将 spawn 出来 spooler 进程，就是 worker，处理这些异步的任务，任务处理成功就将文件删掉。如下图。</p>
+<p><a href="https://www.kawabangga.com/wp-content/uploads/2018/09/spooler.png" target="_blank" rel="noopener"><img src="https://www.kawabangga.com/wp-content/uploads/2018/09/spooler.png" alt="img"></a></p>
+<h2 id="尝试-spooler-第一步"><a href="#尝试-spooler-第一步" class="headerlink" title="尝试 spooler 第一步"></a>尝试 spooler 第一步</h2><p>首先我们新建一个 django 项目来演示 spooler，方便读者阅读。依赖只有 <code>django</code> 和 <code>uwsgi</code> ，通过 pip 安装即可。然后用 <code>django-admin</code> 开启一个新的项目。需要执行的命令如下：</p>
+<table>
+<thead>
+<tr>
+<th>1234</th>
+<th>➜ [python37] pip install django➜ [python37] pip install uwsgi➜ [python37] django-admin startproject demo➜ [python37] cd demo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>然后我们可以使用 <code>uwsgi</code> 来启动项目了。</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>➜ uwsgi –http :9090 –wsgi-file demo/wsgi.py</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>可以访问下 localhost:9090 端口看是否启动成功。</p>
+<h2 id="将任务放入队列"><a href="#将任务放入队列" class="headerlink" title="将任务放入队列"></a>将任务放入队列</h2><p>将任务放入队列我们只要调用 uWSGI 的 <code>spool</code> 函数就可以了。可以接受一个 dict 或者直接是 keyword args。我们在上一步生成的 demo django 项目中写一个向任务队列添加任务的函数如下，直接写在 <code>urls.py</code> 里面了。</p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269681627.png" alt="1575269681627"></p>
+<p>代码比较好懂，访问 URL <code>add_task</code> 的时候就会调用 <code>write_task</code> 往队列里面 spool 一个任务。其中要注意的是 spool 的内容在 Python3 中必须是 <code>bytes</code> 的。</p>
+<p>我们使用下面的命令执行，执行之前，需要先建立 <code>task</code> 文件夹，我们用这个文件夹来存储任务。</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>➜ uwsgi –http :9090 –wsgi-file demo/wsgi.py –spooler tasks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>如果你仔细看的话，会发现最后的输出信息如下。</p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269708409.png" alt="1575269708409"></p>
+<p>确实有了 <code>spooler</code> 的 worker ，而不加 <code>--spooler</code> 参数的话是没有的。</p>
+<p>最后的提示是说没有找到 <code>spooler function</code> ，这是因为我们没有写消费者，所以目前任务会被成功放进去，但是不会被执行。可以试一下，访问我们事先定义好的 <code>localhost:9090/add_task</code>。可以看到每访问一次，<code>task</code> 文件夹就会多一个文件。</p>
+<table>
+<thead>
+<tr>
+<th>1234567</th>
+<th>➜ [python37] demo curl <a href="http://localhost:9090/add_taskdone!%" target="_blank" rel="noopener">http://localhost:9090/add_taskdone!%</a>                                                                                                                ➜ [python37] demo ls tasksuwsgi_spoolfile_on_Kowalski.local_33698_6_2054991181_1536044759_292732➜ [python37] demo curl <a href="http://localhost:9090/add_taskdone!%" target="_blank" rel="noopener">http://localhost:9090/add_taskdone!%</a>                                                                                                                ➜ [python37] demo ls tasksuwsgi_spoolfile_on_Kowalski.local_33698_6_2054991181_1536044759_292732uwsgi_spoolfile_on_Kowalski.local_33698_7_257284366_1536044765_789078</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>其中，<code>spool</code> 函数还有以下特殊的参数，可以满足更多对任务定制的需求。</p>
+<ul>
+<li>‘spooler’ =&gt; specify the ABSOLUTE path of the spooler that has to manage this task</li>
+<li>‘at’ =&gt; unix time at which the task must be executed (read: the task will not be run until the ‘at’ time is passed)</li>
+<li>‘priority’ =&gt; this will be the subdirectory in the spooler directory in which the task will be placed, you can use that trick to give a good-enough prioritization to tasks (for better approach use multiple spoolers)</li>
+<li>‘body’ =&gt; use this key for objects bigger than 64k, the blob will be appended to the serialzed uwsgi packet and passed back to the spooler function as the ‘body’ argument</li>
+</ul>
+<h2 id="编写-spooler-函数（消费者）"><a href="#编写-spooler-函数（消费者）" class="headerlink" title="编写 spooler 函数（消费者）"></a>编写 spooler 函数（消费者）</h2><p>spooler 相当于是 celery 的 worker，是真正将任务取出来进行处理的部分，实际就是从 uWSGI 设置的 spooler 文件夹处理每一个文件。如果你 spooler 写的不对，或者文件夹配置不对的话，这个文件夹会越来越大，相当于任务积压没有被处理。</p>
+<p>uWSGI 是跨语言的，perl，ruby，python 都可以写 spooler。下面是一个 Python 的 spooler 的例子。</p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269740541.png" alt="1575269740541"></p>
+<p>这里要注意的是，返回的值必须是以下 uWSGI 内置的 int 值：</p>
+<ul>
+<li>-2 (SPOOL_OK) – 任务成功，spool 文件将会被删除</li>
+<li>-1 (SPOOL_RETRY) – 任务失败，将会被重试</li>
+<li>0 (SPOOL_IGNORE) – 忽略任务，在多语言环境可能导致竞争，使用此返回值可以让某些语言的实例跳过此任务</li>
+</ul>
+<p>我们可以将这部分代码保存在项目下面的 <code>worker.py</code> 中。由于这段代码在 uWSGI 启动的时候不会被执行，所以启动命令加一个 <code>--import</code> 参数。</p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269760294.png" alt="1575269760294"></p>
+<p>启动之后可以看到 <code>tasks</code> 文件夹中的文件逐渐消失了，每5s 少一个，同时 uWSGI 打印出了执行记录。</p>
+<p>另外，通过 <code>spooler-process</code> 参数可以控制并发量。比如下面这个命令开启 4 个 spooler 进程。</p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269782395.png" alt="1575269782395"></p>
+<h2 id="一些高级的特性"><a href="#一些高级的特性" class="headerlink" title="一些高级的特性"></a>一些高级的特性</h2><p>如果单机有多个 uWSGI 的实例，但是只想启动一个干活的，其他的都只负责 spool 任务。那么可以使用 <a href="https://uwsgi-docs.readthedocs.io/en/latest/Spooler.html#external-spoolers" target="_blank" rel="noopener">External spool</a>。</p>
+<p>另外放任务的过程，其实就是 uWSGI 打包好一个任务写到一个文件里面，所以如果我们向网络中其他 uWSGI 实例，通过 socket 写入，也是可以的，这样就可以使用 <a href="https://uwsgi-docs.readthedocs.io/en/latest/Spooler.html#networked-spoolers" target="_blank" rel="noopener">Networked spoolers</a>。</p>
+<p>任务权重。在上面的内容中，已经介绍过 <code>spool</code> 函数有一个 <code>priority</code> 参数，可以控制任务的权重。实际上 spooler 在运行的时候，会扫面文件夹，如果扫描到数字，就会优先深度执行数字文件夹里面的内容。但是 uWSGI 执行的时候要加 <code>--spooler-ordered</code> 参数。</p>
+<p>比如下面这个 spooler 文件夹的内容：</p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269814056.png" alt="1575269814056"></p>
+<p>实际执行的结果会是：</p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269831224.png" alt="1575269831224"></p>
+<p>其他还支持一些 Options 参数，可以<a href="https://uwsgi-docs.readthedocs.io/en/latest/Spooler.html#options" target="_blank" rel="noopener">参考文档</a>。</p>
+<h2 id="非常重要的-Tips"><a href="#非常重要的-Tips" class="headerlink" title="非常重要的 Tips"></a>非常重要的 Tips</h2><p>我是照着 uWSGI 的文档学习的，可以说这个文档很不友好…… 不是按照初学者的路线组织的，纯粹是解释项目组织的，跟一个 wiki 一样，可能是不同的人一直加 feature 然后更新文档导致的吧…… 总之原来的文档最后一段是比较重要的，本文也是。如果你看到一半就关掉这篇文章，那么你惨了……</p>
+<p>第一点，如果要在实例之间共享内存，可以使用 uWSGI 的 <a href="https://uwsgi-docs.readthedocs.io/en/latest/Caching.html" target="_blank" rel="noopener">cache</a> 或者 <a href="https://uwsgi-docs.readthedocs.io/en/latest/SharedArea.html" target="_blank" rel="noopener">sharedarea</a>。</p>
+<p>第二点，也是比较重要的一点：Python 有 <code>uwsgidecorators.py</code> ，Ruby 有 <code>uwsgidsl.rb</code> 。<strong>不要直接用本文介绍的低级 API</strong>。</p>
+<h2 id="使用优美的装饰器"><a href="#使用优美的装饰器" class="headerlink" title="使用优美的装饰器"></a>使用优美的装饰器</h2><p>如果你使用本文介绍的这些函数的话，可能已经发现，只能写一个延时任务，因为你修改的是全局的 <code>uwsgi.spooler</code> 的值。如果要支持多个任务，就要自己写 dispatcher，像参考资料1中做的那样。</p>
+<p><code>uwsgidecorators.py</code> 里面提供了 3 个很有用的函数。</p>
+<p><code>uwsgidecorators.spool</code> 可以帮你自动分发多个任务，用起来非常像 Celery。还可以自动帮你设置返回值（默认是 <code>uwsgi.SPOOL_OK</code>）。</p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575269925204.png" alt="1575269925204"></p>
+<p><code>uwsgidecorators.spoolforever</code> 功能同上，不同的是此装饰器永远返回 <code>uwsgi.SPOOL_RETRY</code> ，也就意味着这个任务会永远被重试，永远被执行。</p>
+<p><code>uwsgidecorators.spoolraw</code> 这个函数需要用户自己写返回值。</p>
+<p>有兴趣的也推荐看一下<a href="https://github.com/unbit/uwsgi/blob/d960f8fdc36b33c60b7291ca8e32dbb5df22cf15/uwsgidecorators.py" target="_blank" rel="noopener">这些装饰器的源代码</a>。可以看到它会帮你处理很多事情，所以千万不要用原始的 API 啊，装饰器就够了。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/" title="使用uWSGI的spooler做异步任务">https://lmy-xdd.github.io/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%89%E5%89%91%E5%AE%A2/" rel="next" title="机器三剑客">
+                  <i class="fa fa-chevron-left"></i> 机器三剑客
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#spooler-的原理"><span class="nav-number">1.</span> <span class="nav-text">spooler 的原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#尝试-spooler-第一步"><span class="nav-number">2.</span> <span class="nav-text">尝试 spooler 第一步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#将任务放入队列"><span class="nav-number">3.</span> <span class="nav-text">将任务放入队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编写-spooler-函数（消费者）"><span class="nav-number">4.</span> <span class="nav-text">编写 spooler 函数（消费者）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些高级的特性"><span class="nav-number">5.</span> <span class="nav-text">一些高级的特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#非常重要的-Tips"><span class="nav-number">6.</span> <span class="nav-text">非常重要的 Tips</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用优美的装饰器"><span class="nav-number">7.</span> <span class="nav-text">使用优美的装饰器</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>
