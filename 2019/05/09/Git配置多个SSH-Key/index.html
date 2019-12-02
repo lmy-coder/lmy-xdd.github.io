@@ -51,17 +51,17 @@
   };
 </script>
 
-  <meta name="description" content="python3的单元测试模块mock与性能测试模块cProfile  我们知道写完了代码需要自己跑一跑进行测试，一个写好的程序如果连测试都没有就上到生产环境是不敢想象的，这么做的人不是太自信就是太无知。​    传统测试无非就是自己运行一下程序查看结果，或者前后端服务进行联调，这里要说的是走正规流程的单元测试，那到底什么是单元测试呢？顾名思义，只测试当前单元的程序或者代码，也可以理解当前模块的代码">
+  <meta name="description" content="有时候我们的项目托管在多个平台上, 这就需要为每个托管平台设置相应的 SSH-key当有多个git账号时，比如： 一个 gitee 用于公司内部的工作开发 一个 github 用于自己的项目开发 解决方法1.生成一个 gitee 的 SSH-Key1$ ssh-keygen -t rsa -C &amp;apos;x@x.com&amp;apos; -f ~&#x2F;.ssh&#x2F;gitee_id_rsa">
 <meta property="og:type" content="article">
-<meta property="og:title" content="单元测试">
-<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;05&#x2F;18&#x2F;%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95&#x2F;index.html">
+<meta property="og:title" content="Git配置多个SSH-Key">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2019&#x2F;05&#x2F;09&#x2F;Git%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AASSH-Key&#x2F;index.html">
 <meta property="og:site_name" content="lmy">
-<meta property="og:description" content="python3的单元测试模块mock与性能测试模块cProfile  我们知道写完了代码需要自己跑一跑进行测试，一个写好的程序如果连测试都没有就上到生产环境是不敢想象的，这么做的人不是太自信就是太无知。​    传统测试无非就是自己运行一下程序查看结果，或者前后端服务进行联调，这里要说的是走正规流程的单元测试，那到底什么是单元测试呢？顾名思义，只测试当前单元的程序或者代码，也可以理解当前模块的代码">
+<meta property="og:description" content="有时候我们的项目托管在多个平台上, 这就需要为每个托管平台设置相应的 SSH-key当有多个git账号时，比如： 一个 gitee 用于公司内部的工作开发 一个 github 用于自己的项目开发 解决方法1.生成一个 gitee 的 SSH-Key1$ ssh-keygen -t rsa -C &amp;apos;x@x.com&amp;apos; -f ~&#x2F;.ssh&#x2F;gitee_id_rsa">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-02T01:34:24.970Z">
+<meta property="og:updated_time" content="2019-12-02T12:32:12.585Z">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://lmy-xdd.github.io/2018/05/18/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">
+<link rel="canonical" href="https://lmy-xdd.github.io/2019/05/09/Git%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AASSH-Key/">
 
 
 <script id="page-configurations">
@@ -75,7 +75,7 @@
   };
 </script>
 
-  <title>单元测试 | lmy</title>
+  <title>Git配置多个SSH-Key | lmy</title>
   
 
 
@@ -179,7 +179,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/05/18/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2019/05/09/Git%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AASSH-Key/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/lmy.jpg">
@@ -192,7 +192,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          单元测试
+          Git配置多个SSH-Key
         </h1>
 
         <div class="post-meta">
@@ -202,7 +202,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2018-05-18 22:35:16" itemprop="dateCreated datePublished" datetime="2018-05-18T22:35:16+08:00">2018-05-18</time>
+              <time title="创建时间：2019-05-09 21:35:16" itemprop="dateCreated datePublished" datetime="2019-05-09T21:35:16+08:00">2019-05-09</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -210,8 +210,8 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
-                    <span itemprop="name">基础</span>
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index">
+                    <span itemprop="name">数据库</span>
                   </a>
                 </span>
             </span>
@@ -227,29 +227,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="python3的单元测试模块mock与性能测试模块cProfile"><a href="#python3的单元测试模块mock与性能测试模块cProfile" class="headerlink" title="python3的单元测试模块mock与性能测试模块cProfile"></a>python3的单元测试模块mock与性能测试模块cProfile</h1><p>  我们知道写完了代码需要自己跑一跑进行测试，一个写好的程序如果连测试都没有就上到生产环境是不敢想象的，这么做的人不是太自信就是太无知。</p><p>​    传统测试无非就是自己运行一下程序查看结果，或者前后端服务进行联调，这里要说的是走正规流程的单元测试，那到底什么是单元测试呢？顾名思义，只测试当前单元的程序或者代码，也可以理解当前模块的代码块，单元测试假设所有的内部或外部的依赖应该是稳定的, 已经在别处进行测试过的.使用mock 就可以对外部依赖组件实现进行模拟并且替换掉, 从而使得单元测试将焦点只放在当前的单元功能。</p><a id="more"></a>
+        <p>有时候我们的项目托管在多个平台上, 这就需要为每个托管平台设置相应的 SSH-key</p><p>当有多个git账号时，比如：</p><ul>
+<li>一个 <code>gitee</code> 用于公司内部的工作开发</li>
+<li>一个 <code>github</code> 用于自己的项目开发</li>
+</ul><h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><h6 id="1-生成一个-gitee-的-SSH-Key"><a href="#1-生成一个-gitee-的-SSH-Key" class="headerlink" title="1.生成一个 gitee 的 SSH-Key"></a>1.生成一个 <code>gitee</code> 的 <code>SSH-Key</code></h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -C &apos;x@x.com&apos; -f ~/.ssh/gitee_id_rsa</span><br></pre></td></tr></table></figure><a id="more"></a>
 
-<p>​    简单地说，mock就是帮我们解决测试依赖的一个模块，在Python3中，mock已经被集成到了unittest单元测试框架中，所以不需要单独安装，可以直接使用。</p>
-<p>​    什么情况下使用mock<br>    在项目的单元测试过程中，会遇到：<br>    1、接口的依赖<br>    2、外部接口调用<br>    3、测试环境非常复杂</p>
-<p>​    代码示例：</p>
-<p>​    </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">def add_and_multiply(x, y):</span><br><span class="line">    addition = x + y</span><br><span class="line">    multiple = multiply(x, y)</span><br><span class="line">    return (addition, multiple)</span><br><span class="line"></span><br><span class="line">def multiply(x, y):</span><br><span class="line">    return x * y</span><br><span class="line"></span><br><span class="line">class MyTestCase(unittest.TestCase):</span><br><span class="line"></span><br><span class="line">    def test_add_and_multiply(self):</span><br><span class="line">        x = 3</span><br><span class="line">        y = 5</span><br><span class="line">        addition, multiple = add_and_multiply(x, y)</span><br><span class="line">        self.assertEqual(8, addition)</span><br><span class="line">        self.assertEqual(15, multiple)</span><br><span class="line"></span><br><span class="line">if __name__ == &quot;__main__&quot;:</span><br><span class="line">    unittest.main()</span><br></pre></td></tr></table></figure>
 
-<p>​    如上，我们要测试A模块，然后A模块依赖于B模块的调用。但是，由于B模块的改变，导致了A模块返回结果的改变，从而使A模块的测试用例失败。其实，对于A模块，以及A模块的用例来说，并没有变化，不应该失败才对。</p>
-<p>这个时候就是mock发挥作用的时候了。通过mock模拟掉影响A模块的部分（B模块）。至于mock掉的部分（B模块）应该由其它用例来测试。</p>
-<p>​    总有人吐槽 Python 的性能低下，但是 Python 本质其实也不是用来做计算任务的，Python 是一门胶水语言，是用来写业务逻辑的，而不是用来写CPU密集的算法的。事实上复杂的解析一般都会用 C++ 这种硬核语言来写了，比如 numpy TensorFlow lxml。大多数程序员一天 90% 的工作除了和PM撕逼以外，也就是在写 CRUD，也就是调用这些包。所以瓶颈一般在 IO 上而不在 CPU 上，而解决 IO 的瓶颈手段就多了，Python 中至少有 多进程、多线程、AsyncIO、Gevent 等多种方法。不过方法多其实也是一个弊端，这几种方法可以说是基本互不兼容，对各种第三方库的支持也参差不齐。</p>
-<p>​    </p>
-<p>​    而测试python程序的cpu瓶颈，就需要cProfile模块了，cProfile是一种确定性分析器，只测量CPU时间，并不关心内存消耗和其他与内存相关联的信息。</p>
-<p>​    cprofile在python3.7.2里是内置模块，不需要单独安装。</p>
-<p>​    cProfile 有多种调用方法，可以直接从命令行调用：</p>
-<p>​    </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m cProfile -s tottime 你的脚本.py</span><br></pre></td></tr></table></figure>
 
-<p>其中的 -s 的意思是 sort。常用的 sort 类型有两个：</p>
-<p>tottime，指的是函数本身的运行时间，扣除了子函数的运行时间</p>
-<p>cumtime，指的是函数的累计运行时间，包含了子函数的运行时间</p>
-<p>要获得对程序性能的全面理解，经常需要两个指标都看一下。</p>
-<p>​    至此，使用cprofile就可以很简单的看出你写的程序是否性能堪忧了，不过性能这个问题其实是典型的木桶理论的场景，系统的整体性能是由最差的一块决定的。所以也是一个不断迭代的过程。</p>
+
+<p>此命令会生成 <code>gitee_id_rsa</code> 和 <code>gitee_id_rsa.pub</code>两个文件<br>把 <code>gitee_id_rsa.pub</code> 添加到 <code>gitee</code> 个人中心里的 SSH 公钥里即可 <a href="https://gitee.com/help/articles/4191" target="_blank" rel="noopener">教程传送门</a></p>
+<h6 id="2-生成一个-github-的-SSH-Key"><a href="#2-生成一个-github-的-SSH-Key" class="headerlink" title="2.生成一个 github 的 SSH-Key"></a>2.生成一个 <code>github</code> 的 <code>SSH-Key</code></h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ssh-keygen -t rsa -C &apos;x@x.com&apos; -f ~/.ssh/github_id_rsa</span><br></pre></td></tr></table></figure>
+
+<p>此命令会生成 <code>github_id_rsa</code> 和 <code>github_id_rsa.pub</code>两个文件<br>把 <code>github_id_rsa.pub</code> 添加到 <code>github</code> 个人中心里的 SSH keys 里即可</p>
+<h6 id="3-在-ssh-目录下新建一个config文件"><a href="#3-在-ssh-目录下新建一个config文件" class="headerlink" title="3.在 ~/.ssh 目录下新建一个config文件"></a>3.在 ~/.ssh 目录下新建一个config文件</h6><p>添加如下内容, 其中 <code>Host</code> 和 <code>HostName</code> 填写 <code>git</code> 服务器的域名 <code>IdentityFile</code>指定私钥的路径</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># gitee</span><br><span class="line">Host gitee.com</span><br><span class="line">HostName gitee.com</span><br><span class="line">PreferredAuthentications publickey</span><br><span class="line">IdentityFile ~/.ssh/gitee_id_rsa</span><br><span class="line"></span><br><span class="line"># github</span><br><span class="line">Host github.com</span><br><span class="line">HostName github.com</span><br><span class="line">PreferredAuthentications publickey</span><br><span class="line">IdentityFile ~/.ssh/github_id_rsa</span><br></pre></td></tr></table></figure>
+
+<h3 id="用ssh命令分别测试"><a href="#用ssh命令分别测试" class="headerlink" title="用ssh命令分别测试"></a>用ssh命令分别测试</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ ssh -T git@github.com</span><br><span class="line">Hi HoeXHe! You&apos;ve successfully authenticated, but GitHub does not provide shell access.</span><br><span class="line">$ ssh -T git@gitee.com</span><br><span class="line">Hi Hoe! You&apos;ve successfully authenticated, but GITEE.COM does not provide shell access.</span><br></pre></td></tr></table></figure>
+
+<p>这样就完成了~</p>
 
     </div>
 
@@ -265,7 +260,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://lmy-xdd.github.io/2018/05/18/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/" title="单元测试">https://lmy-xdd.github.io/2018/05/18/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</a>
+    <a href="https://lmy-xdd.github.io/2019/05/09/Git%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AASSH-Key/" title="Git配置多个SSH-Key">https://lmy-xdd.github.io/2019/05/09/Git%E9%85%8D%E7%BD%AE%E5%A4%9A%E4%B8%AASSH-Key/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -280,16 +275,16 @@
 
           <div class="post-nav">
             <div class="post-nav-next post-nav-item">
-                <a href="/2018/05/10/Django%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="next" title="Django中间件">
-                  <i class="fa fa-chevron-left"></i> Django中间件
+                <a href="/2019/04/27/%E5%88%A9%E7%94%A8Nginx%E4%BB%A3%E7%90%86%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98/" rel="next" title="利用Nginx代理解决跨域问题">
+                  <i class="fa fa-chevron-left"></i> 利用Nginx代理解决跨域问题
                 </a>
             </div>
 
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-                <a href="/2018/05/24/django%E9%9A%90%E8%97%8F%E8%B5%84%E6%BA%90/" rel="prev" title="Django隐藏资源">
-                  Django隐藏资源 <i class="fa fa-chevron-right"></i>
+                <a href="/2019/05/10/Slip%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E6%BC%8F%E6%B4%9E/" rel="prev" title="Slip任意文件写漏洞">
+                  Slip任意文件写漏洞 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
@@ -329,7 +324,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#python3的单元测试模块mock与性能测试模块cProfile"><span class="nav-number">1.</span> <span class="nav-text">python3的单元测试模块mock与性能测试模块cProfile</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#解决方法"><span class="nav-number">1.</span> <span class="nav-text">解决方法</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#1-生成一个-gitee-的-SSH-Key"><span class="nav-number">1.0.0.1.</span> <span class="nav-text">1.生成一个 gitee 的 SSH-Key</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#2-生成一个-github-的-SSH-Key"><span class="nav-number">1.0.0.2.</span> <span class="nav-text">2.生成一个 github 的 SSH-Key</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#3-在-ssh-目录下新建一个config文件"><span class="nav-number">1.0.0.3.</span> <span class="nav-text">3.在 ~/.ssh 目录下新建一个config文件</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用ssh命令分别测试"><span class="nav-number">2.</span> <span class="nav-text">用ssh命令分别测试</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
