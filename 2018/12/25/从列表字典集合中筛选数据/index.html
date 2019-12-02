@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="1. 筛选出数字列表中的正数假如我们有一个数字列表,其中的数字有正有负,这时候如果我们只想要其中的正数,那么我们怎么样快速得到去除负数后的列表呢?一般我们都会想要最简单但是也是最耗时的方法–迭代.首先我们创造一个随机列表:1234&amp;gt;&amp;gt;&amp;gt; from random import randint&amp;gt;&amp;gt;&amp;gt; data=[randint(-10,10) for _ in ra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从列表字典集合中筛选数据">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;12&#x2F;25&#x2F;%E4%BB%8E%E5%88%97%E8%A1%A8%E5%AD%97%E5%85%B8%E9%9B%86%E5%90%88%E4%B8%AD%E7%AD%9B%E9%80%89%E6%95%B0%E6%8D%AE&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="1. 筛选出数字列表中的正数假如我们有一个数字列表,其中的数字有正有负,这时候如果我们只想要其中的正数,那么我们怎么样快速得到去除负数后的列表呢?一般我们都会想要最简单但是也是最耗时的方法–迭代.首先我们创造一个随机列表:1234&amp;gt;&amp;gt;&amp;gt; from random import randint&amp;gt;&amp;gt;&amp;gt; data=[randint(-10,10) for _ in ra">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-02T09:10:17.227Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2018/12/25/%E4%BB%8E%E5%88%97%E8%A1%A8%E5%AD%97%E5%85%B8%E9%9B%86%E5%90%88%E4%B8%AD%E7%AD%9B%E9%80%89%E6%95%B0%E6%8D%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>从列表字典集合中筛选数据 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/12/25/%E4%BB%8E%E5%88%97%E8%A1%A8%E5%AD%97%E5%85%B8%E9%9B%86%E5%90%88%E4%B8%AD%E7%AD%9B%E9%80%89%E6%95%B0%E6%8D%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从列表字典集合中筛选数据
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-12-25 19:35:16" itemprop="dateCreated datePublished" datetime="2018-12-25T19:35:16+08:00">2018-12-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">基础</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="1-筛选出数字列表中的正数"><a href="#1-筛选出数字列表中的正数" class="headerlink" title="1. 筛选出数字列表中的正数"></a><strong>1. 筛选出数字列表中的正数</strong></h2><p>假如我们有一个数字列表,其中的数字有正有负,这时候如果我们只想要其中的正数,那么我们怎么样快速得到去除负数后的列表呢?</p><p>一般我们都会想要最简单但是也是最耗时的方法–迭代.<br>首先我们创造一个随机列表:</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from random import randint</span><br><span class="line">&gt;&gt;&gt; data=[randint(-10,10) for _ in range(10)]</span><br><span class="line">&gt;&gt;&gt; data</span><br><span class="line">[2, -6, 6, 4, 10, -5, 6, 9, -8, -6]</span><br></pre></td></tr></table></figure><a id="more"></a>
+
+
+
+<p>然后迭代去除其中的负数:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; data1=[]</span><br><span class="line">&gt;&gt;&gt; for i in data:</span><br><span class="line">...     if(i&gt;=0):</span><br><span class="line">...         data1.append(i)</span><br><span class="line">...</span><br><span class="line">&gt;&gt;&gt; data1</span><br><span class="line">[2, 6, 4, 10, 6, 9]</span><br></pre></td></tr></table></figure>
+
+<p>可以看出这时已经成功了,但是这种方式比较耗时耗力。</p>
+<p>我们还可以有种更简单的方法也就是使用过滤函数<code>filter</code><br>看下列代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; data3=list(filter(lambda x:x&gt;=0,data))</span><br><span class="line">&gt;&gt;&gt; data3</span><br><span class="line">[2, 6, 4, 10, 6, 9]</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>filter()</code>函数可以过滤掉不符合x&gt;=0的数,在python3中<code>filter()</code>返回的是一个filter类,所以我们需要使用list函数将其转化为一个列表。</p>
+<p>第三种方法也是最快的方法就是直接在列表中过滤，看下面代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; data3=[x for x in data if x&gt;=0 ]</span><br><span class="line">&gt;&gt;&gt; data3</span><br><span class="line">[2, 6, 4, 10, 6, 9]</span><br></pre></td></tr></table></figure>
+
+<p>上述三种方法一般是第三种方法最快速，第一种方法最慢。</p>
+<p>代码块：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">from random import randint</span><br><span class="line">data=[randint(-10,10) for _ in range(10)]</span><br><span class="line">data1=[]</span><br><span class="line">for i in data:</span><br><span class="line">    if(i&gt;0):</span><br><span class="line">        data1.append(i)</span><br><span class="line">data2=list(filter(lambda x: x&gt;0,data))</span><br><span class="line">data3=[x for x in data if x&gt;0 ]</span><br><span class="line">print(data)</span><br><span class="line">print(&quot;data1:&quot;)</span><br><span class="line">print(data1)</span><br><span class="line">print(&quot;data2:&quot;)</span><br><span class="line">print(data2)</span><br><span class="line">print(&quot;data3:&quot;)</span><br><span class="line">print(data3)</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-筛选出字典中的特定键值对"><a href="#2-筛选出字典中的特定键值对" class="headerlink" title="2. 筛选出字典中的特定键值对"></a><strong>2. 筛选出字典中的特定键值对</strong></h2><p>假设我们有了这样一个字典，键是学生的学号，值是学生的考试成绩。这时我们想要查看90分以上的情况，所以需要将值&gt;=90的筛选出来。</p>
+<p>首先创造这个成绩字典：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; data=&#123;x:randint(50,100) for x in range(10)&#125;</span><br><span class="line">&gt;&gt;&gt; data</span><br><span class="line">&#123;0: 95, 1: 51, 2: 100, 3: 89, 4: 95, 5: 88, 6: 80, 7: 69, 8: 50, 9: 99&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们依然可以利用列表的方法将其中值大于90的键值对找出来：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; data1=&#123;k:v for k,v in data.items() if v&gt;90&#125;</span><br><span class="line">&gt;&gt;&gt; data1</span><br><span class="line">&#123;0: 95, 2: 100, 4: 95, 9: 99&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-筛选出集合中的3的倍数"><a href="#3-筛选出集合中的3的倍数" class="headerlink" title="3. 筛选出集合中的3的倍数"></a><strong>3. 筛选出集合中的3的倍数</strong></h2><p>方法和列表类似，直接看代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; from random import randint</span><br><span class="line">&gt;&gt;&gt; data=&#123;randint(-10,10) for _ in range(25)&#125;</span><br><span class="line">&gt;&gt;&gt; data</span><br><span class="line">&#123;2, 3, 6, 7, 8, 9, -10, -9, -8, -7, -6, -5, -4, -2&#125;</span><br><span class="line">&gt;&gt;&gt; data1=&#123;x for x in data if x%3==0&#125;</span><br><span class="line">&gt;&gt;&gt; data1</span><br><span class="line">&#123;3, 6, 9, -9, -6&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2018/12/25/%E4%BB%8E%E5%88%97%E8%A1%A8%E5%AD%97%E5%85%B8%E9%9B%86%E5%90%88%E4%B8%AD%E7%AD%9B%E9%80%89%E6%95%B0%E6%8D%AE/" title="从列表字典集合中筛选数据">https://lmy-xdd.github.io/2018/12/25/%E4%BB%8E%E5%88%97%E8%A1%A8%E5%AD%97%E5%85%B8%E9%9B%86%E5%90%88%E4%B8%AD%E7%AD%9B%E9%80%89%E6%95%B0%E6%8D%AE/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/12/07/python%E5%A4%9A%E8%BF%9B%E7%A8%8B/" rel="next" title="python多进程">
+                  <i class="fa fa-chevron-left"></i> python多进程
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-筛选出数字列表中的正数"><span class="nav-number">1.</span> <span class="nav-text">1. 筛选出数字列表中的正数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-筛选出字典中的特定键值对"><span class="nav-number">2.</span> <span class="nav-text">2. 筛选出字典中的特定键值对</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-筛选出集合中的3的倍数"><span class="nav-number">3.</span> <span class="nav-text">3. 筛选出集合中的3的倍数</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>

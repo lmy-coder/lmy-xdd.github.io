@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="python多进程1.fork()Unix&#x2F;Linux操作系统提供了一个fork()系统调用，它非常特殊。普通的函数调用，调用一次，返回一次，但是fork()调用一次，返回两次，因为操作系统自动把当前进程（称为父进程）复制了一份（称为子进程），然后，分别在父进程和子进程内返回。子进程永远返回0，而父进程返回子进程的ID。这样做的理由是，一个父进程可以fork出很多子进程，所以，父进程要记下每个子进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python多进程">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;12&#x2F;07&#x2F;python%E5%A4%9A%E8%BF%9B%E7%A8%8B&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="python多进程1.fork()Unix&#x2F;Linux操作系统提供了一个fork()系统调用，它非常特殊。普通的函数调用，调用一次，返回一次，但是fork()调用一次，返回两次，因为操作系统自动把当前进程（称为父进程）复制了一份（称为子进程），然后，分别在父进程和子进程内返回。子进程永远返回0，而父进程返回子进程的ID。这样做的理由是，一个父进程可以fork出很多子进程，所以，父进程要记下每个子进">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-02T09:05:56.168Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2018/12/07/python%E5%A4%9A%E8%BF%9B%E7%A8%8B/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>python多进程 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/12/07/python%E5%A4%9A%E8%BF%9B%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          python多进程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-12-07 21:35:16" itemprop="dateCreated datePublished" datetime="2018-12-07T21:35:16+08:00">2018-12-07</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">基础</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="python多进程"><a href="#python多进程" class="headerlink" title="python多进程"></a>python多进程</h1><h2 id="1-fork"><a href="#1-fork" class="headerlink" title="1.fork()"></a><strong>1.fork()</strong></h2><p>Unix/Linux操作系统提供了一个<code>fork()</code>系统调用，它非常特殊。普通的函数调用，调用一次，返回一次，但是fork()调用一次，返回两次，因为操作系统自动把当前进程（称为父进程）复制了一份（称为子进程），然后，分别在父进程和子进程内返回。</p><p>子进程永远返回0，而父进程返回子进程的ID。这样做的理由是，一个父进程可以fork出很多子进程，所以，父进程要记下每个子进程的ID，而子进程只需要调用getppid()就可以拿到父进程的ID。</p><a id="more"></a>
+
+<p>python在Unix/Linux下实现多进程是非常方便的，直接调用<code>fork()</code>函数即可实现：</p>
+<p>请看代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># -- coding:utf-8 --</span><br><span class="line">import os</span><br><span class="line">print(os.getpid()) #获取子进程的进程号</span><br><span class="line">pid = os.fork()</span><br><span class="line">if pid == 0 :</span><br><span class="line">  print(&apos;I am child process (%s) and my parent is %s.&apos; % (os.getpid(), os.getppid()))</span><br><span class="line">else :</span><br><span class="line">  print(&apos;I (%s) just created a child process (%s).&apos; % (os.getpid(), pid))</span><br></pre></td></tr></table></figure>
+
+<p>上述代码执行结果为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2219</span><br><span class="line">I (2219) just created a child process (2221).</span><br><span class="line">I am child process (2221) and my parent is 2219.</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-multiprocessing"><a href="#2-multiprocessing" class="headerlink" title="2. multiprocessing"></a><strong>2. multiprocessing</strong></h2><p>对于windows是没有<code>fork()</code>函数的，但是python为了实现跨平台的多进程，创建了一个模块用于实现跨平台的多进程程序。</p>
+<p>对于这个函数的介绍，请看<strong>官方文档</strong></p>
+<p>multiprocessing模块的功能众多：支持子进程、通信和共享数据、执行不同形式的同步，提供了Process、Queue、Pipe、Lock等组件。</p>
+<p>需要再次强调的一点是：与线程不同，进程没有任何共享状态，进程修改的数据，改动仅限于该进程内。</p>
+<h3 id="2-1-创建进程–Process"><a href="#2-1-创建进程–Process" class="headerlink" title="2.1 创建进程–Process"></a><strong>2.1 创建进程–Process</strong></h3><p>关于创建子进程，请看下面代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">from multiprocessing import Process</span><br><span class="line">import os</span><br><span class="line"></span><br><span class="line"># 子进程要执行的代码</span><br><span class="line">def run_proc(name):</span><br><span class="line">    print(&apos;Run child process %s (%s)...&apos; % (name, os.getpid()))</span><br><span class="line"></span><br><span class="line">if __name__==&apos;__main__&apos;:</span><br><span class="line">    print(&apos;Parent process %s.&apos; % os.getpid())</span><br><span class="line">    p = Process(target=run_proc, args=(&apos;test&apos;,)) # 创建一个进程</span><br><span class="line">    print(&apos;Child process will start.&apos;)</span><br><span class="line">    p.start()</span><br><span class="line">    p.join()</span><br><span class="line">    print(&apos;Child process end.&apos;)</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ python index.py</span><br><span class="line">Parent process 10992.</span><br><span class="line">Child process will start.</span><br><span class="line">Run child process test (1328)...</span><br><span class="line">Child process end.</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>multiprocessing</code>中的<code>Process</code>类可以很方便的创建一个子进程。关于其格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">multiprocessing.Process(group=None, target=None, name=None, args=(), kwargs=&#123;&#125;, *, daemon=None)</span><br></pre></td></tr></table></figure>
+
+<p>其中</p>
+<ul>
+<li>target 是函数名字，需要调用的函数</li>
+<li>args 函数需要的参数，<strong>以 tuple 的形式传入，必须有逗号</strong></li>
+</ul>
+<p>关于子进程类的方法，有如下说明：</p>
+<ul>
+<li><code>star()</code>方法用于启动进程</li>
+<li><code>join()</code>方法可以等待子进程结束后再继续往下运行，通常用于进程间的同步。</li>
+<li><code>close()</code>用来阻止多余的进程涌入进程池 Pool 造成进程阻塞。(关于进程池请看下文)</li>
+</ul>
+<h3 id="2-2-创建进程池–pool"><a href="#2-2-创建进程池–pool" class="headerlink" title="2.2 创建进程池–pool"></a><strong>2.2 创建进程池–pool</strong></h3><p>Pool 可以提供指定数量的进程供用户使用，默认是 CPU 核数。当有新的请求提交到 Poll 的时候，如果池子没有满，会创建一个进程来执行，否则就会让该请求等待。</p>
+<ul>
+<li>Pool 对象调用 join 方法会等待所有的子进程执行完毕</li>
+<li>调用 join 方法之前，必须调用 close</li>
+<li>调用 close 之后就不能继续添加新的 Process 了</li>
+</ul>
+<p><strong>pool.apply_async</strong></p>
+<p>apply_async 方法用来同步执行进程，允许多个进程同时进入池子。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">from multiprocessing import Pool</span><br><span class="line">import os</span><br><span class="line">import time</span><br><span class="line"></span><br><span class="line">def run_task(name):</span><br><span class="line">    print(&apos;Task &#123;0&#125; pid &#123;1&#125; is running, parent id is &#123;2&#125;&apos;.format(name, os.getpid(), os.getppid()))</span><br><span class="line">    time.sleep(1)</span><br><span class="line">    print(&apos;Task &#123;0&#125; end.&apos;.format(name))</span><br><span class="line"></span><br><span class="line">if __name__ == &apos;__main__&apos;:</span><br><span class="line">    print(&apos;current process &#123;0&#125;&apos;.format(os.getpid()))</span><br><span class="line">    p = Pool(processes=3)</span><br><span class="line">    for i in range(6):</span><br><span class="line">        p.apply_async(run_task, args=(i,))</span><br><span class="line">    print(&apos;Waiting for all subprocesses done...&apos;)</span><br><span class="line">    p.close()</span><br><span class="line">    p.join()</span><br><span class="line">    print(&apos;All processes done!&apos;)</span><br></pre></td></tr></table></figure>
+
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ python index.py</span><br><span class="line">current process 3728</span><br><span class="line">Waiting for all subprocesses done...</span><br><span class="line">Task 0 pid 5988 is running, parent id is 3728</span><br><span class="line">Task 1 pid 11288 is running, parent id is 3728</span><br><span class="line">Task 2 pid 12340 is running, parent id is 3728</span><br><span class="line">Task 1 end.</span><br><span class="line">Task 2 end.</span><br><span class="line">Task 0 end.</span><br><span class="line">Task 3 pid 11288 is running, parent id is 3728</span><br><span class="line">Task 5 pid 5988 is running, parent id is 3728</span><br><span class="line">Task 4 pid 12340 is running, parent id is 3728</span><br><span class="line">Task 5 end.</span><br><span class="line">Task 4 end.</span><br><span class="line">Task 3 end.</span><br><span class="line">All processes done!</span><br></pre></td></tr></table></figure>
+
+<p><strong>pool.apply</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apply(func[, args[, kwds]])</span><br></pre></td></tr></table></figure>
+
+<p>该方法只能允许一个进程进入池子，在一个进程结束之后，另外一个进程才可以进入池子。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">from multiprocessing import Pool</span><br><span class="line">import os</span><br><span class="line">import time</span><br><span class="line"></span><br><span class="line">def run_task(name):</span><br><span class="line">    print(&apos;Task &#123;0&#125; pid &#123;1&#125; is running, parent id is &#123;2&#125;&apos;.format(name, os.getpid(), os.getppid()))</span><br><span class="line">    time.sleep(1)</span><br><span class="line">    print(&apos;Task &#123;0&#125; end.&apos;.format(name))</span><br><span class="line"></span><br><span class="line">if __name__ == &apos;__main__&apos;:</span><br><span class="line">    print(&apos;current process &#123;0&#125;&apos;.format(os.getpid()))</span><br><span class="line">    p = Pool(processes=3)</span><br><span class="line">    for i in range(6):</span><br><span class="line">        p.apply(run_task, args=(i,))</span><br><span class="line">    print(&apos;Waiting for all subprocesses done...&apos;)</span><br><span class="line">    p.close()</span><br><span class="line">    p.join()</span><br><span class="line">    print(&apos;All processes done!&apos;)</span><br></pre></td></tr></table></figure>
+
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ python index.py</span><br><span class="line">current process 3848</span><br><span class="line">Task 0 pid 10884 is running, parent id is 3848</span><br><span class="line">Task 0 end.</span><br><span class="line">Task 1 pid 15900 is running, parent id is 3848</span><br><span class="line">Task 1 end.</span><br><span class="line">Task 2 pid 15276 is running, parent id is 3848</span><br><span class="line">Task 2 end.</span><br><span class="line">Task 3 pid 10884 is running, parent id is 3848</span><br><span class="line">Task 3 end.</span><br><span class="line">Task 4 pid 15900 is running, parent id is 3848</span><br><span class="line">Task 4 end.</span><br><span class="line">Task 5 pid 15276 is running, parent id is 3848</span><br><span class="line">Task 5 end.</span><br><span class="line">Waiting for all subprocesses done...</span><br><span class="line">All processes done!</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-进程通信"><a href="#2-3-进程通信" class="headerlink" title="2.3 进程通信"></a><strong>2.3 进程通信</strong></h3><p>关于进线程能否通过一个全局变量来实现通信，请看<strong>这篇文章</strong>和<strong>这篇文章</strong><br>进程之间是不共享数据的，要实现进程间的通信，multiprocessing模块提供了两种形式：队列和管道。</p>
+<p><strong>队列：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Queue([maxsize])</span><br></pre></td></tr></table></figure>
+
+<p>创建共享的进程队列，Queue是多进程安全的队列，可以使用Queue实现多进程之间的数据传递。maxsize是队列中允许最大项数，省略则无大小限制。</p>
+<p>队列先进先出，当使用<code>Quere</code>进行进程通信的时候，有两种方法，<code>get</code>和<code>put</code></p>
+<p>看实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">from multiprocessing import Process, Queue</span><br><span class="line">import os, time, random</span><br><span class="line"># 写数据进程执行的代码:</span><br><span class="line">def proc_write(q,urls):</span><br><span class="line">    print(&apos;Process(%s) is writing...&apos; % os.getpid())</span><br><span class="line">    for url in urls:</span><br><span class="line">        q.put(url)</span><br><span class="line">        print(&apos;Put %s to queue...&apos; % url)</span><br><span class="line">        time.sleep(random.random())</span><br><span class="line"># 读数据进程执行的代码:</span><br><span class="line">def proc_read(q):</span><br><span class="line">    print(&apos;Process(%s) is reading...&apos; % os.getpid())</span><br><span class="line">    while True:</span><br><span class="line">        url = q.get(True)</span><br><span class="line">        print(&apos;Get %s from queue.&apos; % url)</span><br><span class="line">if __name__==&apos;__main__&apos;:</span><br><span class="line">    # 父进程创建Queue，并传给各个子进程：</span><br><span class="line">    q = Queue()</span><br><span class="line">    proc_writer1 = Process(target=proc_write, args=(q,[&apos;url_1&apos;, &apos;url_2&apos;, &apos;url_3&apos;]))</span><br><span class="line">    proc_writer2 = Process(target=proc_write, args=(q,[&apos;url_4&apos;,&apos;url_5&apos;,&apos;url_6&apos;]))</span><br><span class="line">    proc_reader = Process(target=proc_read, args=(q,))</span><br><span class="line">    # 启动子进程proc_writer，写入:</span><br><span class="line">    proc_writer1.start()</span><br><span class="line">    proc_writer2.start()</span><br><span class="line">    # 启动子进程proc_reader，读取:</span><br><span class="line">    proc_reader.start()</span><br><span class="line">    # 等待proc_writer结束:</span><br><span class="line">    proc_writer1.join()</span><br><span class="line">    proc_writer2.join()</span><br><span class="line">    # proc_reader进程里是死循环，无法等待其结束，只能强行终止:</span><br><span class="line">    proc_reader.terminate()</span><br></pre></td></tr></table></figure>
+
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">$ python index.py             </span><br><span class="line">Process(6420) is writing...   </span><br><span class="line">Put url_1 to queue...         </span><br><span class="line">Process(14808) is reading...  </span><br><span class="line">Get url_1 from queue.         </span><br><span class="line">Process(9084) is writing...   </span><br><span class="line">Put url_4 to queue...         </span><br><span class="line">Get url_4 from queue.         </span><br><span class="line">Put url_5 to queue...         </span><br><span class="line">Get url_5 from queue.         </span><br><span class="line">Put url_6 to queue...         </span><br><span class="line">Get url_6 from queue.         </span><br><span class="line">Put url_2 to queue...         </span><br><span class="line">Get url_2 from queue.         </span><br><span class="line">Put url_3 to queue...         </span><br><span class="line">Get url_3 from queue.</span><br></pre></td></tr></table></figure>
+
+<p>代码解读：</p>
+<p>Quere有两种方法：</p>
+<ul>
+<li>get</li>
+</ul>
+<p>get 方法用来从队列中读取 <strong>并删除</strong>一个元素。有两个参数可选，blocked 和 timeout<br>当取：<code>blocked = True （默认），timeout 正值</code>。等待时间内，没有取到任何元素，会抛出 Queue.Empty 异常。<br>当取：<code>locked = False</code>。则当quere为空时立即抛出异常。</p>
+<ul>
+<li>put</li>
+</ul>
+<p>Put 方法用来插入数据到队列中，有两个可选参数，blocked 和 timeout。<br>当取：<code>blocked = True（默认值），timeout 为正</code>。如果query已满，则会阻塞 timeout 指定的时间，直到该队列有剩余空间。如果超时，抛出 Queue.Full 异常。<br>当取：<code>blocked = False</code>。如果 Queue 已满，立刻抛出 Queue.Full 异常。</p>
+<p><strong>管道：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Pipe([duplex])</span><br></pre></td></tr></table></figure>
+
+<p>在进程之间创建一条管道，并返回元组（con1,con2）,其中con1，con2表示管道两端的连接对象，强调一点：必须在产生Process对象之前产生管道。dumplex:默认管道是双向的，如果将duplex射成False，con1只能用于接收，con2只能用于发送。</p>
+<p>看下面例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># -*- coding:utf-8 -*-</span><br><span class="line">from multiprocessing import Process, Pipe</span><br><span class="line"></span><br><span class="line">def proc1(pipe):</span><br><span class="line">    pipe.send(&apos;Hello,This is proc1&apos;)</span><br><span class="line"></span><br><span class="line">def proc2(pipe):</span><br><span class="line">    while True:</span><br><span class="line">        print(&quot;proc2 recieve:&quot;, pipe.recv())</span><br><span class="line"></span><br><span class="line">if __name__ == &quot;__main__&quot;:</span><br><span class="line">    (con1,con2) = Pipe()</span><br><span class="line">    p1 = Process(target=proc1, args=(con1,))</span><br><span class="line">    p2 = Process(target=proc2, args=(con2,))</span><br><span class="line">    p1.start()</span><br><span class="line">    p2.start()</span><br><span class="line">    p1.join()</span><br><span class="line">    p2.join(2)   #限制执行时间最多为2秒</span><br><span class="line">    print(&apos;\nend all processes.&apos;)</span><br></pre></td></tr></table></figure>
+
+<p>结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ python index.py</span><br><span class="line">proc2 recieve: Hello,This is proc1</span><br><span class="line"></span><br><span class="line">end all processes.</span><br></pre></td></tr></table></figure>
+
+<p>当第二行输出时，因为管道中没有数据传来，Proc2处于阻塞状态，2秒后被强制结束。</p>
+<p>以下是单向管道的例子，注意pipe[0]，pipe[1]的分配。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># -*- coding:utf-8 -*-</span><br><span class="line">from multiprocessing import Process, Pipe</span><br><span class="line"></span><br><span class="line">def proc1(pipe):</span><br><span class="line">    pipe.send(&apos;Hello,This is proc1&apos;)</span><br><span class="line"></span><br><span class="line">def proc2(pipe):</span><br><span class="line">    while True:</span><br><span class="line">        print(&quot;proc2 recieve:&quot;, pipe.recv())</span><br><span class="line"></span><br><span class="line">if __name__ == &quot;__main__&quot;:</span><br><span class="line">    (con1,con2) = Pipe(duplex=False)</span><br><span class="line">    p1 = Process(target=proc1, args=(con1,)) #con1为发送端</span><br><span class="line">    p2 = Process(target=proc2, args=(con2,)) #con2为接收端</span><br><span class="line">    p1.start()</span><br><span class="line">    p2.start()</span><br><span class="line">    p1.join()</span><br><span class="line">    p2.join(2)  # 限制执行时间最多为2秒</span><br><span class="line">    print(&apos;\nend all processes.&apos;)</span><br></pre></td></tr></table></figure>
+
+<p>执行结果同上。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a><strong>3. 总结</strong></h2><p>在Unix/Linux下，可以使用fork()调用实现多进程。</p>
+<p>要实现跨平台的多进程，可以使用multiprocessing模块。</p>
+<p>进程间通信是通过Queue、Pipes等实现的。</p>
+<p>参考：</p>
+<ul>
+<li><strong>多进程 –廖雪峰的官方网站</strong></li>
+<li><strong>Python3之多进程</strong></li>
+<li><strong>python3 学习笔记 多进程 multiprocessing 模块</strong></li>
+<li><strong>Python实现进程同步和通信</strong></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2018/12/07/python%E5%A4%9A%E8%BF%9B%E7%A8%8B/" title="python多进程">https://lmy-xdd.github.io/2018/12/07/python%E5%A4%9A%E8%BF%9B%E7%A8%8B/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/12/07/Python3%20Socket/" rel="next" title="python多进程">
+                  <i class="fa fa-chevron-left"></i> python多进程
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/12/25/%E4%BB%8E%E5%88%97%E8%A1%A8%E5%AD%97%E5%85%B8%E9%9B%86%E5%90%88%E4%B8%AD%E7%AD%9B%E9%80%89%E6%95%B0%E6%8D%AE/" rel="prev" title="从列表字典集合中筛选数据">
+                  从列表字典集合中筛选数据 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#python多进程"><span class="nav-number">1.</span> <span class="nav-text">python多进程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-fork"><span class="nav-number">1.1.</span> <span class="nav-text">1.fork()</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-multiprocessing"><span class="nav-number">1.2.</span> <span class="nav-text">2. multiprocessing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-创建进程–Process"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 创建进程–Process</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-创建进程池–pool"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 创建进程池–pool</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-进程通信"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 进程通信</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-总结"><span class="nav-number">1.3.</span> <span class="nav-text">3. 总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>
