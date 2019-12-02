@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="部署 Django 项目背后的原理：为什么需要 Nginx 和 Gunicron这些东西？相信用过 Django 的同学一定会被 “Very easy to setup” 惊艳到。只要一行命令，就可以在 admin 界面看到一个完整的登陆注册。但是到了部署的时候，你一定会被网上复杂的部署教程搞的头晕，为啥本地开发这么简单，到了服务器却需要又是 Nginx，又是 uWSGI 这种东西呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django项目背后的原理">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;06&#x2F;15&#x2F;Django%E9%A1%B9%E7%9B%AE%E8%83%8C%E5%90%8E%E7%9A%84%E5%8E%9F%E7%90%86&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="部署 Django 项目背后的原理：为什么需要 Nginx 和 Gunicron这些东西？相信用过 Django 的同学一定会被 “Very easy to setup” 惊艳到。只要一行命令，就可以在 admin 界面看到一个完整的登陆注册。但是到了部署的时候，你一定会被网上复杂的部署教程搞的头晕，为啥本地开发这么简单，到了服务器却需要又是 Nginx，又是 uWSGI 这种东西呢？">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;www.kawabangga.com&#x2F;wp-content&#x2F;uploads&#x2F;2018&#x2F;06&#x2F;full-stack-python-map-1024x671.png">
+<meta property="og:updated_time" content="2019-12-02T03:06:35.841Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;www.kawabangga.com&#x2F;wp-content&#x2F;uploads&#x2F;2018&#x2F;06&#x2F;full-stack-python-map-1024x671.png">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2018/06/15/Django%E9%A1%B9%E7%9B%AE%E8%83%8C%E5%90%8E%E7%9A%84%E5%8E%9F%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Django项目背后的原理 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/06/15/Django%E9%A1%B9%E7%9B%AE%E8%83%8C%E5%90%8E%E7%9A%84%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Django项目背后的原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-15 19:55:16" itemprop="dateCreated datePublished" datetime="2018-06-15T19:55:16+08:00">2018-06-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%90%8E%E5%8F%B0/" itemprop="url" rel="index">
+                    <span itemprop="name">后台</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="部署-Django-项目背后的原理：为什么需要-Nginx-和-Gunicron这些东西？"><a href="#部署-Django-项目背后的原理：为什么需要-Nginx-和-Gunicron这些东西？" class="headerlink" title="部署 Django 项目背后的原理：为什么需要 Nginx 和 Gunicron这些东西？"></a>部署 Django 项目背后的原理：为什么需要 Nginx 和 Gunicron这些东西？</h1><p>相信用过 Django 的同学一定会被 “Very easy to setup” 惊艳到。只要一行命令，就可以在 admin 界面看到一个完整的登陆注册。但是到了部署的时候，你一定会被网上复杂的部署教程搞的头晕，为啥本地开发这么简单，到了服务器却需要又是 Nginx，又是 uWSGI 这种东西呢？</p><a id="more"></a>
+<p><img src="https://www.kawabangga.com/wp-content/uploads/2018/06/full-stack-python-map-1024x671.png" alt="img"></p>
+<p>摘自The Full Stack Python Guide to Deployments 一书</p>
+<p>本文试图解释这些程序在一个 Web 服务中扮演的角色，为什么部署 Python web程序需要它们。本文不介绍如何部署 Django 应用等，这一类教程网上有很多，读者可自行搜索。其中 Nginx 和 Apache 算是一类的，可以替换。Gunicorn 和 uWSGI 的角色是类似的。同理最后端的 Web 框架是一类的，比如 Django 和 Flask。本文的内容替换以上任意一个应该也适用。</p>
+<p>如果你读了网上任意一篇教程，你应该知道一个完整的部署应该类似这样：</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>HTTP Server &lt;—–&gt; WSGI &lt;—–&gt; App</th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>最后后面的 App 我们知道，只要 <code>runserver</code> 就可以访问了，但是 Django 的文档明确说明：</p>
+<blockquote>
+<p>DO NOT USE THIS SERVER IN A PRODUCTION SETTING. It has not gone through security audits or performance tests. (And that’s how it’s gonna stay. We’re in the business of making Web frameworks, not Web servers, so improving this server to be able to handle a production environment is outside the scope of Django.)</p>
+</blockquote>
+<p>即 Django 做的事情只是一个框架，不会去关心一些安全问题、HTTP 的性能问题等。所以我们需要一个专业的 HTTP 服务器。这就出现了 Nginx 或 Apache。那么如何将 HTTP 服务器和我们的应用连接起来呢？动态网站问世的时候，就出现了 CGI 协议。注意这是一个协议，定义了HTTP 服务器如何通过后端的应用获取动态内容。可以简单的理解成 HTTP 服务器通过 CGI 协议调用后端应用吧！WSGI 可以理解成 Python 的 CGI。uWSGI 和 Gunicorn 是这种 WSGI 的一些实现。这样，就出现了上面提到的三层的部署。</p>
+<p>但是，为什么我们还需要 Nginx 呢？这些 WSGI 程序本身不是也提供访问吗？</p>
+<p>是的，uWSGI 和 Gunicorn 本身就是一个便携的 web 服务器了，但是我们一般还是在它们前面档一个更加专业的 HTTP 服务器。Nginx 作为一个经过更长时间验证的 HTTP 服务器来说，它有很多 uWSGI 没有支持的 feature。比如：</p>
+<ol>
+<li>处理静态资源更加优秀，E-Tag 的设置，Gzip 压缩等</li>
+<li>处理网络连接，降低网络负载。例如 reuqest_buffering ，假如部署一个 uWSGI 程序，如果有慢的请求存在，uWSGI 必须等待整个 HTTP 请求发过来之后才开始处理请求。但是如果前置 Nginx，那么 Nginx 会帮你收到整个 HTTP 请求之后才交给 uWSGI 处理，也就是说，uWSGI获得的永远会是完整的 HTTP 请求，不会占用一个线程在等待。（为什么慢请求不会占用 Nginx 一个线程但是会占用 uWSGI 的一个线程，这个是因为 Nginx 是基于 epoll 的异步模型，而 uWSGI 是同步模型，这里面要详细了解的话，就要去搜索和阅读很多东西了）</li>
+<li>甚至缓存动态的内容，例如将博客的首页缓存 5 分钟</li>
+<li>作为一个负载均衡的前置，这样每一层的实例数量可以横向扩展</li>
+<li>Nginx 本身是作为一个服务存在的，几乎在任何 Linux 版本上安装之后都可以用 initd 启动，就像 MySQL 那样。uWSGI 一般是需要自己将其配置成服务的。（虽然前置了 Nginx 依然是需要配置 uWSGI）</li>
+<li>……</li>
+</ol>
+<p>此外，这样分开的好处还是得，到达 uWSGI 和 Gunicorn 的请求的情况变得简单了很多，Nginx 处理了一层，将过滤和处理之后的请求交给 uWSGI 或 Gunicorn。这使得这些 WSGI 程序的实现简单了一些，简化了开发的工作。专业的事情交给专业的人去做。</p>
+<p>当然，并不是所有的项目都需要这么复杂的部署，有一个可选的是将 WSGI 程序嫁接到 HTTP 服务器上，比如 Apache httpd + mod_wsgi, <del>Nginx + mod_uwsgi</del> 等。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2018/06/15/Django%E9%A1%B9%E7%9B%AE%E8%83%8C%E5%90%8E%E7%9A%84%E5%8E%9F%E7%90%86/" title="Django项目背后的原理">https://lmy-xdd.github.io/2018/06/15/Django%E9%A1%B9%E7%9B%AE%E8%83%8C%E5%90%8E%E7%9A%84%E5%8E%9F%E7%90%86/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/06/02/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E9%A2%98/" rel="next" title="Django生命周期">
+                  <i class="fa fa-chevron-left"></i> Django生命周期
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/06/27/Django%E5%BA%8F%E5%88%97%E5%8C%96/" rel="prev" title="序列化和反序列化">
+                  序列化和反序列化 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#部署-Django-项目背后的原理：为什么需要-Nginx-和-Gunicron这些东西？"><span class="nav-number">1.</span> <span class="nav-text">部署 Django 项目背后的原理：为什么需要 Nginx 和 Gunicron这些东西？</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>

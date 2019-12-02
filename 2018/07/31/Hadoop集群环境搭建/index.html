@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Hadoop集群环境搭建配置描述：配置环境：Win7 64bit旗舰版系统 内存：4G（建议至少4内存，虚拟机对内存需求旺盛） 处理器：intel i5-3210m软件需求：VMWARE-WORKSTATION-12.0（虚拟机环境配置）SSH client（win7-linux系统文件传输，基于ssh协议）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop搭建">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;07&#x2F;31&#x2F;Hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="Hadoop集群环境搭建配置描述：配置环境：Win7 64bit旗舰版系统 内存：4G（建议至少4内存，虚拟机对内存需求旺盛） 处理器：intel i5-3210m软件需求：VMWARE-WORKSTATION-12.0（虚拟机环境配置）SSH client（win7-linux系统文件传输，基于ssh协议）">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps1.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps2.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps3.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps4.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps5.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps6.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps7.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps8.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps9.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps10.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps11.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps12.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps13.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps14.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps15.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps16.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps17.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps18.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps19.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps20.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps21.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps22.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps23.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps24.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps25.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps26.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps27.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps28.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps29.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps30.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps31.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps32.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps33.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps34.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps35.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps36.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps37.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps38.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps39.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps40.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps41.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps42.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps43.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps44.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps45.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps46.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps47.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps48.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps49.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps50.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps51.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps52.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps53.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps54.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps55.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps56.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps57.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps58.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps59.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps60.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps61.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps62.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps63.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps64.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps65.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps66.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps67.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps68.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps69.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps70.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps71.jpg">
+<meta property="og:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps72.jpg">
+<meta property="og:updated_time" content="2019-12-02T04:22:43.878Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="file:&#x2F;&#x2F;&#x2F;C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps1.jpg">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2018/07/31/Hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Hadoop搭建 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/07/31/Hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Hadoop搭建
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-07-31 13:35:16" itemprop="dateCreated datePublished" datetime="2018-07-31T13:35:16+08:00">2018-07-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9C%BA%E5%99%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">机器</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Hadoop集群环境搭建"><a href="#Hadoop集群环境搭建" class="headerlink" title="Hadoop集群环境搭建"></a><strong>Hadoop集群环境搭建</strong></h1><h2 id="配置描述："><a href="#配置描述：" class="headerlink" title="配置描述："></a><strong>配置描述：</strong></h2><p>配置环境：</p><p>Win7 64bit旗舰版系统 </p><p>内存：4G（建议至少4内存，虚拟机对内存需求旺盛） </p><p>处理器：intel i5-3210m</p><p>软件需求：VMWARE-WORKSTATION-12.0（虚拟机环境配置）</p><p>SSH client（win7-linux系统文件传输，基于ssh协议）</p><a id="more"></a>
+
+
+
+
+
+<p>hadoop-2.6.4.tar.gz（最高版本为2.7.2，为了避免最新版本意外bug与不稳定，我们选择2.6.4版本</p>
+<p>CentOS-7-x86_64-DVD-1511.iso    虚拟机镜像版本。（注意是64bit，根据自己计算机实际情况做相应调整）</p>
+<p>集群环境描述：</p>
+<p>Master Slave0 Slave1</p>
+<p>一个虚拟机作为Master（namenode），另外两台是Slave0 ，Slave1（datanode）。并分别以此为虚拟机主机名。</p>
+<p>虚拟机配置：内存按照建议的最小内存512M给(后来验证384M也可以跑起来)，磁盘空间默认即可。</p>
+<h2 id="搭建步骤"><a href="#搭建步骤" class="headerlink" title="搭建步骤"></a><strong>搭建步骤</strong></h2><h3 id="VMWARE-WORKSTATION12-0与虚拟机的安装"><a href="#VMWARE-WORKSTATION12-0与虚拟机的安装" class="headerlink" title="VMWARE-WORKSTATION12.0与虚拟机的安装"></a><strong>VMWARE-WORKSTATION12.0与虚拟机的安装</strong></h3><h3 id="虚拟机基本配置"><a href="#虚拟机基本配置" class="headerlink" title="虚拟机基本配置"></a><strong>虚拟机基本配置</strong></h3><h3 id="S-sh无密码登录"><a href="#S-sh无密码登录" class="headerlink" title="S**sh无密码登录**"></a><strong>S**</strong>sh无密码登录**</h3><h3 id="JDK环境配置"><a href="#JDK环境配置" class="headerlink" title="JDK环境配置"></a><strong>JDK环境配置</strong></h3><h3 id="Hadoop配置与安装"><a href="#Hadoop配置与安装" class="headerlink" title="Hadoop配置与安装"></a><strong>Hadoop配置与安装</strong></h3><p>下面分别对这四个步骤进行详细描述：</p>
+<h3 id="VMWARE-WORKSTATION12-0安装（无限next和确定，no-why）"><a href="#VMWARE-WORKSTATION12-0安装（无限next和确定，no-why）" class="headerlink" title="VMWARE-WORKSTATION12.0安装（无限next和确定，no why）"></a><strong>VMWARE-WORKSTATION12.0安装（无限next和确定，no why）</strong></h3><h4 id="虚拟机的安装"><a href="#虚拟机的安装" class="headerlink" title="虚拟机的安装"></a><strong>虚拟机的安装</strong></h4><p>打开vmware-workstation，选择新建虚拟机：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps1.jpg" alt="img"> </p>
+<p>选择自定义配置（选择自定义，然后下一步）：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps2.jpg" alt="img"> </p>
+<p>全局配置默认即可（直接下一步）：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps3.jpg" alt="img"> </p>
+<p>选择安装程序镜像iso，根据自己电脑浏览iso镜像路径并配置，然后点击下一步：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps4.jpg" alt="img"> </p>
+<p>虚拟机名字自定，你知道这个是master机器即可，位置默认，下一步。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps5.jpg" alt="img"> </p>
+<p>Cpu设置，默认即可，下一步</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps6.jpg" alt="img"> </p>
+<p>内存设置为512M，推荐的最小内存，然后下一步。由于三台虚拟机跑起来还是蛮吃内存的，所以选了最小的。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps7.jpg" alt="img"> </p>
+<p>网络连接桥接，切记。然后下一步</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps8.jpg" alt="img"> </p>
+<p>Io控制器选择默认的即可，下一步。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps9.jpg" alt="img"> </p>
+<p>磁盘也是默认，下一步。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps10.jpg" alt="img"> </p>
+<p>磁盘选择，再次默认。下一步</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps11.jpg" alt="img"> </p>
+<p>磁盘大小选择，在此选了默认。下一步。（若磁盘空间不足，适当调小即可。分配20G并不会立刻用完，而是根据虚拟机的磁盘需要逐步占用，所以不用担心把计算机磁盘占满）</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps12.jpg" alt="img"> </p>
+<p>磁盘名默认。这是根据你虚拟机名字hadoop_master自动生成的。下一步</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps13.jpg" alt="img"> </p>
+<p>配置完毕，完成即可，打开虚拟机。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps14.jpg" alt="img"> </p>
+<p>总结：安装过程，三个虚拟机配置都一样，名称不同罢了。后面两个分别命名为</p>
+<p>hadoop_slave0,hadoop_slave1.请自行修改。后面两个虚拟的安装过程不再截图，与此步骤完全相同。</p>
+<h4 id="虚拟开始安装并配置："><a href="#虚拟开始安装并配置：" class="headerlink" title="虚拟开始安装并配置："></a><strong>虚拟开始安装并配置：</strong></h4><p>按上下左右方向，选到默认的Install CentOS 7回车即可</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps15.jpg" alt="img"> </p>
+<p>狂按回车：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps16.jpg" alt="img"> </p>
+<p>开始装虚拟机，语言默认即可。别选中文，中文在路径命名的时候会很麻烦。单击continue：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps17.jpg" alt="img"> </p>
+<p>安装选项很多。莫慌，我们只需要配置磁盘选项一个（有红字标识的）。然后就选择安装即可<img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps18.jpg" alt="img"></p>
+<p>点进去，把没选的磁盘选了就行，变成蓝色了，然后选择done</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps19.jpg" alt="img"> </p>
+<p>最后选择蓝色的begin installation即可。<img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps20.jpg" alt="img"></p>
+<p>开始安装读条。在漫长的等待中，我们还需要给root用户创建密码，并创建hadoop用户，hadoop用户的密码自己设置，密码太简单系统会提示你点击两次done来确认。之后就可以等虚拟机安装完成了。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps21.jpg" alt="img"> </p>
+<p>设置root密码：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps22.jpg" alt="img"> </p>
+<p>创建hadoop用户</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps23.jpg" alt="img"> </p>
+<p>到这里，虚拟机安装就结束了。</p>
+<p>装完了这个样子，系统提示点击reboot重启。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps24.jpg" alt="img"> </p>
+<p>小结：三台虚拟机配置一样，除了名字。创建了相同的hadoop用户，设置了root密码。为了方便我设置了root和hadoop用户相同的密码，总共六个密码都一样。实际环境不推荐这样，系统不安全。</p>
+<p>虚拟机基本配置（hadoop加入sudoers表，网络配置，安装net-tools工具，修改hosts文件。三台虚拟机都要配置）：</p>
+<p>为了方便的使用虚拟机，我们进行几个简单的系统配置。这就是虚拟机安装完成之后的样子，是命令行版本的，并没有图形操作界面，需要熟悉linux命令行操作。首先配置vmware的网络设置，在菜单栏中-编辑-虚拟网络编辑器</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps25.jpg" alt="img"> </p>
+<p>在详细的配置选项中，要选择中间的桥接，并且桥接的适配器要选择所用计算机联网用的适配器。比如笔者用的是有线网的Qualcomm Atheros网卡，如果无线网可能是Intel-wireless网卡，请读者根据实际情况配置。然后应用即可。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps26.jpg" alt="img"> </p>
+<p>用root用户登录进去：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps27.jpg" alt="img"> </p>
+<p>首先修改 /etc/sudoers文件，将我们的hadoop用户加入sudoer列表。这个表示可以临时赋予hadoop用户superuser权限。</p>
+<p>Linux命令：vi /etc/sudoers </p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps28.jpg" alt="img"> </p>
+<p>在sudoers中加入我们的hadoop用户，和root用户相同的配置下面一行是我们自己添加的，原来并没有。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps29.jpg" alt="img"> </p>
+<p>退出保存</p>
+<p>Linux命令：Ecs然后wq。</p>
+<p>切换到hadoop用户。</p>
+<p>Linux命令：su hadoop</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps30.jpg" alt="img"> </p>
+<p>调试网络。若果ping <a href="http://www.baidu.com" target="_blank" rel="noopener">www.baidu.com</a>正常则可以跳过这一步，直接去下一步安装net-tools工具</p>
+<p>进入目录/etc/sysconfig/network-scripts</p>
+<p>Linux命令：cd /etc/sysconfig/network-scripts</p>
+<p>列出所有文件：</p>
+<p>Linux命令：ls –a</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps31.jpg" alt="img"> </p>
+<p>文件只截图了一部分，最重要的我们要修改的ifcfg-eno-xxxxx就是我们的网络配置文件，文件名可以随着不同机器而不同。</p>
+<p>修改此文件：vi ifcfg-eno16777736，把最后一行的ONBOOT=no，no改为yes。表示开机启用网络。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps32.jpg" alt="img"> </p>
+<p>然后重启，重启之后我们的网络就可以正常使用了。Linux命令：sudo reboot</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps33.jpg" alt="img"> </p>
+<p>使用 ping <a href="http://www.baidu.com" target="_blank" rel="noopener">www.baidu.com</a> 是有正常的icmp报文回传。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps34.jpg" alt="img"> </p>
+<p>网络配置结束。后面安装net-tools工具，便于我们查看网络。</p>
+<p>Linux命令：sudo yum install net-tools</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps35.jpg" alt="img"> </p>
+<p>按照命令提示，在安装过程中输入y或者yes即可。</p>
+<p>安装完了，用ifconfig命令，可以查看虚拟机系统的ip地址和详细信息。记住各个机器ip</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps36.jpg" alt="img"> </p>
+<p>最后的配置：根据master和slave0，slave1的ip地址（ifconfig命令可以查看）修改hosts文件和hostname文件。</p>
+<p>Linux命令：sudo vi /etc/hosts</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps37.jpg" alt="img"> </p>
+<p>修改hostname文件：</p>
+<p>Linux命令：sudo vi /etc/hostname</p>
+<p>将原来的localhost.localdomin（文件中只有这几个字0.0）改为虚拟机的对应的位置，master或者slave0或者slave1.</p>
+<p>在此只演示修改了master的hostname文件，其他两个请自行修改。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps38.jpg" alt="img"> </p>
+<p>修改完成，hosts文件是对应主机名和ip地址的映射，我们做集群实验，可能ip地址会换掉，但是如果在配置是使用主机名代替，那么当ip地址变更时只需要修改hosts文件即可。结果小测试</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps39.jpg" alt="img"> </p>
+<p>hostname显示当前主机名为master，而在master上ping，slave0和slave1，表示hosts配置成功。下面就可以开始ssh无密码登录配置了。</p>
+<h3 id="S-sh无密码登陆配置"><a href="#S-sh无密码登陆配置" class="headerlink" title="S**sh无密码登陆配置**"></a><strong>S**</strong>sh无密码登陆配置**</h3><p>原理简述：基于ssh协议，利用rsa非对称加密算法加密，将相应的公钥文件放入合适的文件夹即可。若要master无密码登录slave0，需要将密码文件在master和slave0中存放合理即可。最后我们需要做到master无密码登录slave0和slave1，slave0登录master，slave1登录master，共配置四次。在此仅展示一次配置，其他三次请自行操作。</p>
+<p>步骤简述：在master生成密码，存到master和slave0相应位置，重启ssh服务即可无密码登录,master就可以无密码登录slave0。</p>
+<p>详细步骤：</p>
+<p>在master上生成秘钥，注意！使用默认路径，会在/home/hadoop/.ssh目录下生成，而这个秘钥文件在写在/home/hadoop/.ssh/authorized_keys文件中。在生成秘钥过程中会自动生成.ssh目录。我们在把文件拷贝过去即可。</p>
+<p>开始：</p>
+<p>先在三台机器上开启无密码登陆需要的设置</p>
+<p>Linux命令：sudo vi /etc/ssh/sshd_config</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps40.jpg" alt="img"> </p>
+<p>然后修改#RSAAuthentication yes和#PubKeyAuthentication yes。把原来的文件最前面的#删除就行了。然后：wq！退出即可。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps41.jpg" alt="img"> </p>
+<p>生成秘钥（hadoop用户登录之后进行操作）</p>
+<p>Master机Linux命令：ssh-keygen –t rsa –P ‘’</p>
+<p>(注：ssh-keygen中间没有空格，后面之间都有空格，如gen 和 –t之间。-t表示加密算法，采用rsa)</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps42.jpg" alt="img"> </p>
+<p>黄色框是提示输入秘钥名字，敲回车就行了，用默认的。然后在~/.ssh目录下就会有秘钥文件，在此使用ls –a命令查看结果如下：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps43.jpg" alt="img"> </p>
+<p>然后把秘钥文件id_rsa.pub追加到.ssh文件夹中的authorized_keys文件中，使用cat命令会直接新建并写入该文件。</p>
+<p>Linux命令：cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps44.jpg" alt="img"> </p>
+<p>更改authorized_keys文件的权限为600</p>
+<p>Linux命令：chmod 600 ~/.ssh/authorized_keys,如图结果就是600权限</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps45.jpg" alt="img"> </p>
+<p>同时在slave0虚拟机生成秘钥文件，这一步操作是为了后面的做基础，并且这一过程会默认生成相应权限的.ssh目录，避免麻烦。</p>
+<p>Linux命令：ssh-keygen –t rsa –P ‘’结果如下：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps46.jpg" alt="img"> </p>
+<p>然后把master机的id_rsa.pub复制到slave0的~/.ssh/authorized_keys文件中</p>
+<p>Linux命令：scp <del>/.ssh/id_rsa.pub hadoop@slave0：</del>/.ssh/id_master_keys</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps47.jpg" alt="img"> </p>
+<p>在slave0机 中把<del>/.ssh/id_master_keys写入</del>/.ssh/authorized_keys文件中即可。</p>
+<p>Linux命令：cat ~/.ssh/id_master_keys &gt;&gt; ~/.ssh/authorized_keys</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps48.jpg" alt="img"> </p>
+<p>完成之后，修改authorized_keys文件权限为600</p>
+<p>Linux命令：chmod 600 authorized_keys同master，不在截图</p>
+<p>最后重启master，slave0的sshd服务：</p>
+<p>Linux命令：sudo service sshd restart</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps49.jpg" alt="img"> </p>
+<p>最后就可以无密码登录了，master登录slave0.小结：我们把master生成的密码文件在master和slave0中存储，就可以实现master无密码访问slave0。其他三组无密码登录操作与此同不再赘述。</p>
+<p>结果如下：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps50.jpg" alt="img"> </p>
+<p>没有输入密码就直接登录了。</p>
+<h3 id="JDK配置"><a href="#JDK配置" class="headerlink" title="JDK配置"></a><strong>JDK配置</strong></h3><p>(三个虚拟机一样的配置方法，轮流配置)</p>
+<p>思路概述：使用windows和linux之间的文件传输工具ssh-client，把windows下载好的jdk文件复制到linux系统中。然后进行相关配置。（建议同时把hadoop文件复制过去）。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps51.jpg" alt="img"> </p>
+<p>默认会把文件存储在/home/hadoop目录下，也就是~。我们去把jdk文件解压一下，然后配置/etc/profile文件即可。</p>
+<p>解压压缩包：</p>
+<p>Linux命令：tar –xzvf jdk-8u101-linux-x64.tar.gz –C ~/software/</p>
+<p>（参数-C表示解压到制定目录，此目录必须提前创建）</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps52.jpg" alt="img"> </p>
+<p>Jdk路径配置：</p>
+<p>修改/etc/profile文件</p>
+<p>Linux命令:sudo vi /etc/profile</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps53.jpg" alt="img"> </p>
+<p>添加下面三行：</p>
+<p># set java environment</p>
+<p>export JAVA_HOME=/home/hadoop/software/jdk1.8.0_101/</p>
+<p>export CLASSPATH=.:$CLASSPATH:$JAVA_HOME/lib:$JAVA_HOME/jre/lib</p>
+<p>export PATH=$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps54.jpg" alt="img"> </p>
+<p>配置完成之后使用source /etc/profile 使配置文件生效。</p>
+<p>java –version查看。配置成功即为下图</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps55.jpg" alt="img"> </p>
+<p>（scp –r <del>/software/jdk1.8.0_101 hadoop@slave0:</del>/software）</p>
+<h3 id="H-adoop环境配置"><a href="#H-adoop环境配置" class="headerlink" title="H**adoop环境配置**"></a><strong>H**</strong>adoop环境配置**</h3><p>主要分三步：</p>
+<p>压缩包解压和目录建立，xml与sh文件的配置，防火墙关闭及hadoop启动。</p>
+<p>压缩包解压和目录建立</p>
+<p>解压hadoop到/home/hadoop/software目录</p>
+<p>Linux命令：tar –xzvf ~/hadoop-2.6.4.tar.gz –C ~/software/</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps56.jpg" alt="img"> </p>
+<p>然后修改环境配置/etc/profile文件</p>
+<p>​    sudo vi /etc/profile</p>
+<p>新添2行</p>
+<p>export HADOOP_HOME=/home/hadoop/software/hadoop-2.6.4/</p>
+<p>export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps57.jpg" alt="img"> </p>
+<p>同样配置完成之后执行source /etc/profile更新配置文件。配置成功hadoop version命令则会显示hadoop版本信息：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps58.jpg" alt="img"> </p>
+<p>然后开始配置hadoop的配置文件。主要分两类.sh的脚本文件和.xml的配置文件。</p>
+<p>先在hadoop目录下创建三个目录，tmp,namenode,datanode目录，用来存储相应的数据。</p>
+<p>Linux命令：</p>
+<p>mkdir ~/software/hadoop-2.6.4/tmp ~/software/hadoop-2.6.4/namenode ~/software/hadoop-2.6.4/datanode</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps59.jpg" alt="img"> </p>
+<p>xml与sh文件的配置：</p>
+<p>需要配置的文件主要有：hadoop-env.sh,core-site.xml,hdfs-site.xml,mapred-site.xml,slaves.五个文件。</p>
+<p>首先配置</p>
+<p>hadoop-env.sh</p>
+<p>Linux命令：cd ~/software/hadoop-2.6.4/etc/hadoop/</p>
+<p>vi hadoop-env.sh</p>
+<p>添加JDK的路径：</p>
+<p>export JAVA_HOME=/home/hadoop/software/jdk1.8.0_101/</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps60.jpg" alt="img"> </p>
+<p>然后是core-site.xml</p>
+<p>Linux 命令vi core-site.xml</p>
+<p>加上两组属性配置：</p>
+<property>
+
+<p>​    <name>fs.defaultFS</name></p>
+<p>​    <value>hdfs://master:9000</value></p>
+</property>
+
+<property>
+
+<p>​    <name>hadoop.tmp.dir</name></p>
+<p>​    <value>/home/hadoop/software/hadoop-2.6.4/tmp</value></p>
+</property>
+
+
+
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps61.jpg" alt="img"> </p>
+<p>hdfs-site.xml</p>
+<p>vi hdfs-site.xml</p>
+<p>加上三组属性配置：</p>
+<property>
+
+<p>​    <name>dfs.namenode.name.dir</name></p>
+<p>​    <value>/home/hadoop/software/hadoop-2.6.4/namenode</value></p>
+</property>
+
+<property>
+
+<p>​    <name>dfs.datanode.data.dir</name></p>
+<p>​    <value>/home/hadoop/software/hadoop-2.6.4/datanode</value></p>
+</property>
+
+<property>
+
+<p>​    <name>dfs.replication</name></p>
+<p>​    <value>2</value></p>
+</property>
+
+<p>(后续环境的配置。绿色配置可选)</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps62.jpg" alt="img"> </p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps63.jpg" alt="img"> </p>
+<p>第四个</p>
+<p>mapred-site.xml</p>
+<p>（在次配置文件目录没有这个文件，但是有一个模板文件mapred-site.xml.template）</p>
+<p>使用 cat mapred-site.xml.template &gt;&gt; mapred-site.xml就可以把模板中的内容复制到mapred-site.xml，然后使用vi命令编辑即可。</p>
+<p>加入一行配置即可：</p>
+<property>
+
+<p>​    <name>mapreduce.framework.name</name></p>
+<p>​    <value>yarn</value></p>
+</property>
+
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps64.jpg" alt="img"> </p>
+<p>第五个slaves文件，把原来里面的localhost删除，把slaves节点的主机名slave0和slave1加上即可。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps65.jpg" alt="img"> </p>
+<p>防火墙关闭及hadoop启动</p>
+<p>tips：centos7采用了systemctl工具来控制防火墙，而不是曾经的iptables这个services。</p>
+<p>使用命令：</p>
+<p>sudo systemctl stop firewalld</p>
+<p>关闭防火墙之后可以使用sudo systemc status firewalld查看防火墙状态，如下图</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps66.jpg" alt="img"> </p>
+<p>都准备完毕了</p>
+<p>开始格式化namenode，使用命令：hadoop namenode -format </p>
+<p>启动hadoop，linux命令：start-all.sh</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps67.jpg" alt="img"> </p>
+<p>使用jps和hdfs dfsadmin –report命令可以查看详细集群状态。</p>
+<p>在master使用jps，结果如图：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps68.jpg" alt="img"> </p>
+<p>而在slave如图：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps69.jpg" alt="img"> </p>
+<p>hdfs dfsadmin –report</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps70.jpg" alt="img"> </p>
+<p>在windows浏览器中输入<a href="http://10.10.169.125:50070" target="_blank" rel="noopener">http://10.10.169.125:50070</a>就可以查看集群的信息。</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps71.jpg" alt="img"> </p>
+<p>还有<a href="http://10.10.169.125:8088" target="_blank" rel="noopener">http://10.10.169.125:8088</a>，也可以查看详细信息，如图：</p>
+<p><img src="file:///C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5Cksohtml11172%5Cwps72.jpg" alt="img"> </p>
+<p>至此，环境搭建工作彻底完成~</p>
+<p>0.0如果你坚持到这里，祝你好运！你的耐心足以帮你成功成事，Good Luck！</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2018/07/31/Hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="Hadoop搭建">https://lmy-xdd.github.io/2018/07/31/Hadoop%E9%9B%86%E7%BE%A4%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/07/22/%E4%BB%80%E4%B9%88%E6%98%AFHadoop/" rel="next" title="Hadoop">
+                  <i class="fa fa-chevron-left"></i> Hadoop
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/08/10/django2.1/" rel="prev" title="Django2.1">
+                  Django2.1 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Hadoop集群环境搭建"><span class="nav-number">1.</span> <span class="nav-text">Hadoop集群环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#配置描述："><span class="nav-number">1.1.</span> <span class="nav-text">配置描述：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#搭建步骤"><span class="nav-number">1.2.</span> <span class="nav-text">搭建步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#VMWARE-WORKSTATION12-0与虚拟机的安装"><span class="nav-number">1.2.1.</span> <span class="nav-text">VMWARE-WORKSTATION12.0与虚拟机的安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚拟机基本配置"><span class="nav-number">1.2.2.</span> <span class="nav-text">虚拟机基本配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#S-sh无密码登录"><span class="nav-number">1.2.3.</span> <span class="nav-text">S**sh无密码登录**</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDK环境配置"><span class="nav-number">1.2.4.</span> <span class="nav-text">JDK环境配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hadoop配置与安装"><span class="nav-number">1.2.5.</span> <span class="nav-text">Hadoop配置与安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VMWARE-WORKSTATION12-0安装（无限next和确定，no-why）"><span class="nav-number">1.2.6.</span> <span class="nav-text">VMWARE-WORKSTATION12.0安装（无限next和确定，no why）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#虚拟机的安装"><span class="nav-number">1.2.6.1.</span> <span class="nav-text">虚拟机的安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚拟开始安装并配置："><span class="nav-number">1.2.6.2.</span> <span class="nav-text">虚拟开始安装并配置：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#S-sh无密码登陆配置"><span class="nav-number">1.2.7.</span> <span class="nav-text">S**sh无密码登陆配置**</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDK配置"><span class="nav-number">1.2.8.</span> <span class="nav-text">JDK配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#H-adoop环境配置"><span class="nav-number">1.2.9.</span> <span class="nav-text">H**adoop环境配置**</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>

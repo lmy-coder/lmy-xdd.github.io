@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="分布式定时任务的重复执行问题定时执行某项任务是非常常见的一个需求，简单的 crontabl 就可以完成。我们最近的一个 Django 项目中用了 Apscheduler 来调度定时任务，遇到了一些问题。首先，Apscheduler 定位是一个依赖于你的应用的任务调度库，非常轻巧： That APScheduler is not a daemon or service itself, nor doe">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django生命周期">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;06&#x2F;02&#x2F;%E5%88%86%E5%B8%83%E5%BC%8F%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E9%A2%98&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="分布式定时任务的重复执行问题定时执行某项任务是非常常见的一个需求，简单的 crontabl 就可以完成。我们最近的一个 Django 项目中用了 Apscheduler 来调度定时任务，遇到了一些问题。首先，Apscheduler 定位是一个依赖于你的应用的任务调度库，非常轻巧： That APScheduler is not a daemon or service itself, nor doe">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575255632597.png">
+<meta property="og:updated_time" content="2019-12-02T03:01:12.225Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="c:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575255632597.png">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2018/06/02/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Django生命周期 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/06/02/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Django生命周期
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-06-02 10:25:16" itemprop="dateCreated datePublished" datetime="2018-06-02T10:25:16+08:00">2018-06-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%90%8E%E5%8F%B0/" itemprop="url" rel="index">
+                    <span itemprop="name">后台</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="分布式定时任务的重复执行问题"><a href="#分布式定时任务的重复执行问题" class="headerlink" title="分布式定时任务的重复执行问题"></a>分布式定时任务的重复执行问题</h1><p>定时执行某项任务是非常常见的一个需求，简单的 <code>crontabl</code> 就可以完成。我们最近的一个 Django 项目中用了 <a href="https://github.com/agronholm/apscheduler" target="_blank" rel="noopener">Apscheduler</a> 来调度定时任务，遇到了一些问题。</p><p>首先，Apscheduler 定位是一个<a href="https://apscheduler.readthedocs.io/en/latest/" target="_blank" rel="noopener">依赖于你的应用的任务调度库</a>，非常轻巧：</p><blockquote>
+<p>That APScheduler is <strong>not</strong> a daemon or service itself, nor does it come with any command line tools. It is primarily meant to be run inside existing applications.</p>
+</blockquote><a id="more"></a>
+
+
+<p>Apscheduler 是跟随你的应用来启动的，没有持久化，没有命令行操作任务的工作，运行在应用的内部（这其中很挫的一个问题是，每次运行 Django <code>manage.py</code> 都会启动这玩意，甚至跑 <code>migrate</code> 都会启动，不过这很可能是我们的用法有问题）。如果一些小巧的项目用起来倒是不错，但是如果需要对任务进行管理和控制，就有很多限制了。</p>
+<h2 id="Apscheduler-分布式的问题"><a href="#Apscheduler-分布式的问题" class="headerlink" title="Apscheduler 分布式的问题"></a>Apscheduler 分布式的问题</h2><p>我们遇到的问题是：Gunicorn 部署 Django 的时候会起来 4 个进程实例，我们 Django 应用内的 Apscheduler 也会跟着起来 4 个，那么遇到定时制定任务的时候，每个任务都会执行 4 次。这就很蛋疼了。</p>
+<p>我们先是用了一个临时的解决方案，就是让任务的执行有幂等性。任务是拉去一部分数据到 MySQL 数据库中，那么就在数据库建立一些 Uniqe 索引，后面重复执行的任务放不进去。这样的做法显然会浪费一些资源，但是从结果上看是可以保证正确的，数据肯定不会被重复存储。缺点是每个任务都要考虑到同步的问题，或是类似的唯一索引，或是加锁。</p>
+<p>然后又有了一种解决方案，<code>manage.py</code> 在运行的时候使用一个文件锁，这样无论有多少个 Django 在运行，都只会有一个 Apscheduler 存在。这样这个问题就可以被忽略了，大家可以再污染实际的定时任务逻辑了。可这种锁这对本地的多个 Django 有效，如果分布式部署 Django ，那么问题又来了，每一个机器的多个 Django 中都会存在一个 Apscheduler。对于解决单机多个 Apscheduler 的方案中，还有一个<a href="https://stackoverflow.com/questions/16053364/make-sure-only-one-worker-launches-the-apscheduler-event-in-a-pyramid-web-app-ru" target="_blank" rel="noopener">比较灵巧的</a>，但是稍微复杂一些。原理是让 Gunicorn 先载入 app 然后再 fork 进程，载入 app 的时候开启一个 scheduler 线程，fork 的时候就不会再开线程了。这样每一个 Django 中都有 worker 可以用（jobstore 必须不能使用内存，要用外部可共享的），但是只有一个 scheduler 存在）。具体的步骤如下： </p>
+<p>Gunicorn 启动的命令带上 <code>--preload</code> 参数，先载入 app 再 fork 进程，这样下面的代码<strong>只会</strong>在 master 执行一次： </p>
+<p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575255632597.png" alt="1575255632597"></p>
+<ol>
+<li><p>jobstore 选择非 memory 的选项。否则只有一个 worker 在跑（和 scheduler 在同一个 Django 中的那个），使用外部的 jobstore 就可以让所有的 worker 去跑 scheduler 了</p>
+</li>
+<li><p>Scheduler 选择 <strong>BackgroundScheduler</strong> 。因为 BackgroundScheduler 的实现是，调用 <code>start()</code> 会开一个线程来调度。这样我们在 master 进程 load app 的时候会调用一次，Gunicorn fork 出来不会再调用，所以就一直有一个线程存在。</p>
+<h2 id="Celery-的解决方案"><a href="#Celery-的解决方案" class="headerlink" title="Celery 的解决方案"></a>Celery 的解决方案</h2><p>Celery 作为一个分布式的任务队列，解决方案就比较简单了：直接就只有一个 scheduler 存在，它调度任务，多个 worker 来执行。</p>
+<blockquote>
+<p>You have to ensure only a single scheduler is running for a schedule at a time, otherwise you’d end up with duplicate tasks. Using a centralized approach means the schedule doesn’t have to be synchronized, and the service can operate without using locks.</p>
+</blockquote>
+<p>既然只有一个 scheduler ，那么周期任务既不需要同步，也不需要加锁。缺点就是一个单点。（部署 scheduler 的地方需要提供一个可读写的文件让 scheduler 保存最后一次执行的任务，这个 scheduler 其实是有状态的。）</p>
+<p>对于可用性要求不是特别高、周期性任务实时性要求不是特别高的项目来说，其实也够用了。而且我认为 celery 应该会实现类似调度失败重试的机制，不至于和 crontab 那么简陋。</p>
+<p>其实我设想的任务调度应该是多个 scheduler 对于某任务、某时间生成一个唯一 token，然后拿 token 去队列里放任务。应该可以解决分布式的问题，即高可用又是幂等的。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2018/06/02/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E9%A2%98/" title="Django生命周期">https://lmy-xdd.github.io/2018/06/02/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%A4%8D%E6%89%A7%E8%A1%8C%E7%9A%84%E9%97%AE%E9%A2%98/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/05/24/django%E9%9A%90%E8%97%8F%E8%B5%84%E6%BA%90/" rel="next" title="Django隐藏资源">
+                  <i class="fa fa-chevron-left"></i> Django隐藏资源
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/06/15/Django%E9%A1%B9%E7%9B%AE%E8%83%8C%E5%90%8E%E7%9A%84%E5%8E%9F%E7%90%86/" rel="prev" title="Django项目背后的原理">
+                  Django项目背后的原理 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分布式定时任务的重复执行问题"><span class="nav-number">1.</span> <span class="nav-text">分布式定时任务的重复执行问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Apscheduler-分布式的问题"><span class="nav-number">1.1.</span> <span class="nav-text">Apscheduler 分布式的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Celery-的解决方案"><span class="nav-number">1.2.</span> <span class="nav-text">Celery 的解决方案</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <link rel="alternate" href="/atom.xml" title="lmy" type="application/atom+xml">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.5.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="find -name mysql  查看Linux里面有没有MySQL  （find -name查找什么后面就写什么） Hadoop的文件路径   cd &#x2F;  opt hadoop-2.7.2  hadoop 安装 Hadoop首先安装sshCentOS的软件安装工具不是apt-get  是yum yum -y install   ssh openssh-server">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop安装">
+<meta property="og:url" content="https:&#x2F;&#x2F;lmy-xdd.github.io&#x2F;2018&#x2F;07&#x2F;21&#x2F;hadoop%E5%AE%89%E8%A3%85&#x2F;index.html">
+<meta property="og:site_name" content="lmy">
+<meta property="og:description" content="find -name mysql  查看Linux里面有没有MySQL  （find -name查找什么后面就写什么） Hadoop的文件路径   cd &#x2F;  opt hadoop-2.7.2  hadoop 安装 Hadoop首先安装sshCentOS的软件安装工具不是apt-get  是yum yum -y install   ssh openssh-server">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-02T04:02:20.678Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://lmy-xdd.github.io/2018/07/21/hadoop%E5%AE%89%E8%A3%85/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Hadoop安装 | lmy</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">lmy</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/07/21/hadoop%E5%AE%89%E8%A3%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Hadoop安装
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-07-21 19:35:16" itemprop="dateCreated datePublished" datetime="2018-07-21T19:35:16+08:00">2018-07-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9C%BA%E5%99%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">机器</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>find -name mysql  查看Linux里面有没有MySQL  （find -name查找什么后面就写什么）</p><p> Hadoop的文件路径   cd /  opt hadoop-2.7.2  hadoop </p><p>安装 Hadoop</p><p>首先安装ssh</p><p>CentOS的软件安装工具不是apt-get  是yum</p><p> yum -y install   ssh openssh-server     </p><a id="more"></a>
+
+
+
+
+
+<p>1.创建ssh-key，这里我们采用rsa方式，使用如下命令：　</p>
+<p>　　　ssh-keygen -t rsa -P “” </p>
+<p>2.出现一个图形，出现的图形就是密码，不用管它　</p>
+<p>　　　cat ~/.ssh/id_rsa.pub &gt;&gt; authorized_keys(好像是可以省略的) </p>
+<p>　3.然后即可无密码验证登录了，如下：　</p>
+<p>　　　ssh localhost </p>
+<p>wget <a href="https://www.apache.org/dyn/closer.cgi/hadoop/common/hadoop-3.1.2/hadoop-3.1.2-src.tar.gz" target="_blank" rel="noopener">https://www.apache.org/dyn/closer.cgi/hadoop/common/hadoop-3.1.2/hadoop-3.1.2-src.tar.gz</a> </p>
+<p>把本地安装包传进Linux里的opt文件夹 </p>
+<p>在本地往Linux里传文件，在黑窗口里执行命令：scp 路径 <a href="mailto:root@192.168.200.134" target="_blank" rel="noopener">root@192.168.200.134</a>:/opt在Linux里要存的文件夹 </p>
+<p>使用如下命令解压缩Hadoop安装包 </p>
+<p>tar -zxvf hadoop-3.1.2.tar.gz     </p>
+<p>解压jbk </p>
+<p>　解压缩完成后出现hadoop2.7.1的文件夹 </p>
+<p>解压完成后进入jbk的文件夹 </p>
+<p>然后配置vim ~/.bashrc 这个文件夹是隐藏的进去后输入i是编辑 </p>
+<p>export PATH=”/root/anaconda3/bin:$PATH” </p>
+<p>export PATH=”/root/anaconda3/bin/python:$PATH” </p>
+<p>export JAVA_HOME=”/opt/jdk1.8.0_60” </p>
+<p>export PATH=”$PATH:$JAVA_HOME/bin” </p>
+<p>export HADOOP_HOME=”/opt/hadoop-2.7.2” </p>
+<p>export PATH=”$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin” </p>
+<p>然后按ESC SHIFT； qw 是保存退出 q！不保存强制退出 </p>
+<p>进入文件夹  /opt/etc   </p>
+<p>vim hosts    填写master </p>
+<p>vim hostname  填写127.0.0.1    master </p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Liu Mingyi
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lmy-xdd.github.io/2018/07/21/hadoop%E5%AE%89%E8%A3%85/" title="Hadoop安装">https://lmy-xdd.github.io/2018/07/21/hadoop%E5%AE%89%E8%A3%85/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2018/07/08/%E7%88%AC%E8%99%AB%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E9%A1%B5%E9%9D%A2%E6%9B%B4%E6%96%B0/" rel="next" title="判断页面更新">
+                  <i class="fa fa-chevron-left"></i> 判断页面更新
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/07/22/%E4%BB%80%E4%B9%88%E6%98%AFHadoop/" rel="prev" title="Hadoop">
+                  Hadoop <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Liu Mingyi"
+      src="/images/lmy.jpg">
+  <p class="site-author-name" itemprop="name">Liu Mingyi</p>
+  <div class="site-description" itemprop="description">我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/null" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2017 – 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-lmy"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lmy</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  <script type="text/javascript" src="/js/clicklove.js"></script>
+</body>
+</html>
