@@ -178,6 +178,158 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/10/08/uWSGI%20socket%20%E9%98%9F%E5%88%97%E8%A2%AB%E5%8D%A0%E6%BB%A1%E7%9A%84%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/10/08/uWSGI%20socket%20%E9%98%9F%E5%88%97%E8%A2%AB%E5%8D%A0%E6%BB%A1%E7%9A%84%E9%97%AE%E9%A2%98/" class="post-title-link" itemprop="url">uWSGI socket 队列被占满的问题</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-10-08 16:31:25" itemprop="dateCreated datePublished" datetime="2018-10-08T16:31:25+08:00">2018-10-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>国庆之后第一天，同事在 uWSGI 的日志发现这样的东西：</p><p><img src="C:%5CUsers%5CADMINI~1%5CAppData%5CLocal%5CTemp%5C1575272893596.png" alt="1575272893596"></p><p>真有意思，看日志的表面意思是 socket 的队列被占满了。</p><p>介绍一下我们的业务场景吧，这个 uWSGI 服务负责处理的 HTTP 请求大多数一个前端的应用发过来的，请求耗时会很长，最长可能到 2 分钟，最短 ms 级别。处理请求的耗时不稳定，请求的频率也不稳定，比如可能突然发过来很多耗时长的请求。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/10/08/uWSGI%20socket%20%E9%98%9F%E5%88%97%E8%A2%AB%E5%8D%A0%E6%BB%A1%E7%9A%84%E9%97%AE%E9%A2%98/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/" class="post-title-link" itemprop="url">使用uWSGI的spooler做异步任务</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-09-14 20:31:25" itemprop="dateCreated datePublished" datetime="2018-09-14T20:31:25+08:00">2018-09-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近项目上线，遇到了比较烦的问题，我们无法在线上环境使用 redis。原因貌似是 redis 对集群不太友好，高可用比较难做。所以公司没有现有的可以申请用的 redis 集群（但是有类似的替代品）。</p><p>在之前解决<a href="https://www.kawabangga.com/posts/2903" target="_blank" rel="noopener">分布式定时任务的时候</a>，我引入了 celery，但是很可惜，celery 目前支持的几个 Broker 在我们这里都没有。想了很多方案之后，还是决定不再用 celery + redis 的组合了。寻找一个不依赖外部 Broker 的异步队列。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%89%E5%89%91%E5%AE%A2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -406,150 +558,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/07/22/%E4%BB%80%E4%B9%88%E6%98%AFHadoop/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/lmy.jpg">
-      <meta itemprop="name" content="Liu Mingyi">
-      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="lmy">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/07/22/%E4%BB%80%E4%B9%88%E6%98%AFHadoop/" class="post-title-link" itemprop="url">Hadoop</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-07-22 13:35:16" itemprop="dateCreated datePublished" datetime="2018-07-22T13:35:16+08:00">2018-07-22</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9C%BA%E5%99%A8/" itemprop="url" rel="index">
-                    <span itemprop="name">机器</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>HADOOP是apache旗下的一套开源软件平台的一个分布式计算开源框架用java语言实现开源软件框架，实现在大量计算机组成的集群中对海量数据进行分布式计算。Hadoop框架中最核心设计就是：HDFS和MapReduce，HDFS实现存储，而MapReduce实现原理分析处理，这两部分是hadoop的核心。HADOOP提供的功能：利用服务器集群，根据用户的自定义业务逻辑，对海量数据进行分布式处理HADOOP的核心组件有HDFS（分布式文件系统）YARN（运算资源调度系统）MAPREDUCE（分布式运算编程框架） Apache Hadoop 为可靠的，可扩展的分布式计算开发开源软件。Apache Hadoop软件库是一个框架，它允许使用简单的编程模型跨计算机群集分布式处理大型数据集（海量的数据）。包括这些模块： Hadoop Common：支持其他Hadoop模块的常用工具。 Hadoop分布式文件系统（HDFS™）：一种分布式文件系统，可提供对应用程序数据的高吞吐量访问。 Hadoop YARN：作业调度和集群资源管理的框架。 Hadoop MapReduce：一种用于并行处理大型数据集的基于YARN的系统。 上述每个模块有自己独立的功能，而模块之间又有相互的关联。 广义上来说，HADOOP通常是指一个更广泛的概念——HADOOP生态圈hadoop生态圈中  各个组件的作用描述： （1）hdfs：就是一个文件系统，可以存储海量的数据。 （2）mapreduce：从海量的数据中，通过一定的算法，计算出有用信息。 （3）hive：就是sql语句解释器，接收用户输入的sql语句，然后将该sql语句翻译成复杂的mapreduce程序，并发布到mr集群中进行运算，也是计算出有用的信息。 （4）hbase：mysql是基于linux/window的文件系统的数据库，而hbase就是基于hdfs文件系统的数据库。 （5）flume：就是一个水泵，将水从一个源水坑，抽到到另一个目的水坑中。当然flume抽的是 “数据”。将数据从一个文件中抽取到另一个文件中。 （6）sqoop：将hdfs文件系统的文件，导出到linux文件系统的文件中。就像“豌豆荚”应用程序，实现 android系统与window系统之间文件的导入导出。 （7）ooize/azkaban：一个完整的业务（work）是由多个任务（task）相互配合完成的。该组件就是负责协调各个task的执行顺序。 重点组件： HDFS：分布式文件系统 MAPREDUCE：分布式运算程序开发框架 HIVE：基于大数据技术（文件系统+运算框架）的SQL数据仓库工具 HBASE：基于HADOOP的分布式海量数据库 ZOOKEEPER：分布式协调服务基础组件 Mahout：基于mapreduce/spark/flink等分布式运算框架的机器学习算法库 Oozie：工作流调度框架 Sqoop：数据导入导出工具 Flume：日志数据采集框架 </p>
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/07/21/hadoop%E5%AE%89%E8%A3%85/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/lmy.jpg">
-      <meta itemprop="name" content="Liu Mingyi">
-      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="lmy">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/07/21/hadoop%E5%AE%89%E8%A3%85/" class="post-title-link" itemprop="url">Hadoop安装</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-07-21 19:35:16" itemprop="dateCreated datePublished" datetime="2018-07-21T19:35:16+08:00">2018-07-21</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9C%BA%E5%99%A8/" itemprop="url" rel="index">
-                    <span itemprop="name">机器</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>find -name mysql  查看Linux里面有没有MySQL  （find -name查找什么后面就写什么）</p><p> Hadoop的文件路径   cd /  opt hadoop-2.7.2  hadoop </p><p>安装 Hadoop</p><p>首先安装ssh</p><p>CentOS的软件安装工具不是apt-get  是yum</p><p> yum -y install   ssh openssh-server     </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/07/21/hadoop%E5%AE%89%E8%A3%85/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -600,7 +608,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-count">55</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
