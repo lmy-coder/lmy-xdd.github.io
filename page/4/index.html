@@ -178,7 +178,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2019/01/20/%E5%AE%9E%E7%8E%B0%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/lmy.jpg">
@@ -192,7 +192,7 @@
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
           
-            <a href="/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/" class="post-title-link" itemprop="url">redis未授权漏洞利用</a>
+            <a href="/2019/01/20/%E5%AE%9E%E7%8E%B0%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" class="post-title-link" itemprop="url">实现交互式shell的几种方式</a>
         </h1>
 
         <div class="post-meta">
@@ -227,20 +227,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="redis未授权漏洞利用"><a href="#redis未授权漏洞利用" class="headerlink" title="redis未授权漏洞利用"></a>redis未授权漏洞利用</h1><h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><ol>
-<li>redis是什么?</li>
-</ol><p>Redis是一个开源的使用ANSI C语言编写、遵守BSD协议、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库</p><ol>
-<li>redis有哪些使用场景</li>
-</ol><ul>
-<li>Redis经常被应用于以下场景</li>
-<li>缓存 (Session Cache)</li>
-<li>队列 (PUB/SUB)</li>
-<li>计数器</li>
-<li>……</li>
-</ul>
+          <h1 id="实现交互式shell的几种方式"><a href="#实现交互式shell的几种方式" class="headerlink" title="实现交互式shell的几种方式"></a>实现交互式shell的几种方式</h1><p>当我们拿到一个webshell的时候，我们能够执行一些命令，但是这些命令都是非交互的，也就是说不存在上下文的概念。当我们想使用vim、top等命令时，webshell就无能为力了。</p><p>那我们怎么获取一个可交互的webshell呢？</p><h2 id="1-python-pty-方式"><a href="#1-python-pty-方式" class="headerlink" title="1. python pty 方式"></a>1. python pty 方式</h2><p>一般我们都会使用nc来接收反弹来的shell，只需要在目标上(以linux为例)执行：</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/01/20/redis%E6%9C%AA%E6%8E%88%E6%9D%83%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/#more" rel="contents">
+              <a class="btn" href="/2019/01/20/%E5%AE%9E%E7%8E%B0%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
