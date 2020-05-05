@@ -178,6 +178,82 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/lmy.jpg">
+      <meta itemprop="name" content="Liu Mingyi">
+      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="lmy">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/" class="post-title-link" itemprop="url">使用uWSGI的spooler做异步任务</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-09-14 20:31:25" itemprop="dateCreated datePublished" datetime="2018-09-14T20:31:25+08:00">2018-09-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/linux/" itemprop="url" rel="index">
+                    <span itemprop="name">linux</span>
+                  </a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近项目上线，遇到了比较烦的问题，我们无法在线上环境使用 redis。原因貌似是 redis 对集群不太友好，高可用比较难做。所以公司没有现有的可以申请用的 redis 集群（但是有类似的替代品）。</p><p>在之前解决<a href="https://www.kawabangga.com/posts/2903" target="_blank" rel="noopener">分布式定时任务的时候</a>，我引入了 celery，但是很可惜，celery 目前支持的几个 Broker 在我们这里都没有。想了很多方案之后，还是决定不再用 celery + redis 的组合了。寻找一个不依赖外部 Broker 的异步队列。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2018/09/14/%E4%BD%BF%E7%94%A8uWSGI%E7%9A%84spooler%E5%81%9A%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/08/19/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E4%B8%89%E5%89%91%E5%AE%A2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -474,82 +550,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://lmy-xdd.github.io/2018/07/21/hadoop%E5%AE%89%E8%A3%85/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/lmy.jpg">
-      <meta itemprop="name" content="Liu Mingyi">
-      <meta itemprop="description" content="我的邮箱是liumingyi0809@gmail.com,欢迎技术讨论">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="lmy">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/07/21/hadoop%E5%AE%89%E8%A3%85/" class="post-title-link" itemprop="url">Hadoop安装</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-07-21 19:35:16" itemprop="dateCreated datePublished" datetime="2018-07-21T19:35:16+08:00">2018-07-21</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9C%BA%E5%99%A8/" itemprop="url" rel="index">
-                    <span itemprop="name">机器</span>
-                  </a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>find -name mysql  查看Linux里面有没有MySQL  （find -name查找什么后面就写什么）</p><p> Hadoop的文件路径   cd /  opt hadoop-2.7.2  hadoop </p><p>安装 Hadoop</p><p>首先安装ssh</p><p>CentOS的软件安装工具不是apt-get  是yum</p><p> yum -y install   ssh openssh-server     </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/07/21/hadoop%E5%AE%89%E8%A3%85/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -600,7 +600,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-count">59</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
